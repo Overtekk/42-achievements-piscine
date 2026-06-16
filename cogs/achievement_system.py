@@ -5,7 +5,7 @@ import sqlite3
 from discord.ext import commands
 
 # Get the config
-with open('config.json', mode='r') as config_file:
+with open('data/config.json', mode='r') as config_file:
     config = json.load(config_file)
 
 CHANNEL = config['channel_id']
