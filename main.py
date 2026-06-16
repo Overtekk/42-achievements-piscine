@@ -3,8 +3,9 @@ import os
 import discord
 
 from dotenv import load_dotenv
-from src.utils import print_error, print_log
 from discord.ext import commands
+from utils import print_error, print_log
+from cogs.achievement_system import AchievementSystem
 
 
 def main():
@@ -23,6 +24,7 @@ def main():
         async def on_ready():
             print_log(f"Bot started as {bot.user.name}")
 
+        bot.add_cog(AchievementSystem(bot))
         bot.run(BOT_TOKEN)
 
         # END
