@@ -16,6 +16,7 @@ def main():
         if BOT_TOKEN is None:
             raise ValueError("\n Missing discord token in the .env file.")
 
+        # Create the bot
         bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
 
         @bot.event
