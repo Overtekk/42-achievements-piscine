@@ -1,0 +1,11 @@
+[project]
+name = "42-achievements-piscine"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = [
+    "discord>=2.3.2",
+    "dotenv>=0.9.9",
+    "rich>=15.0.0",
+]
