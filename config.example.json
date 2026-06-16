@@ -1,3 +1,4 @@
 {
-	"channel_id": "channel ID where commands are authorized and achievements are shown"
+	"channel_id": "channel ID where commands are authorized and achievements are shown",
+	"channel_log": "channel ID where the logs will be writted"
 }

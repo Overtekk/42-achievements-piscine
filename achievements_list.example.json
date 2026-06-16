@@ -1,0 +1,18 @@
+[
+	{
+		"name_en": "name of the achievement",
+		"name_fr": "nom du succès",
+		"description_en": "description of the achievement",
+		"description_fr": "description du succès",
+		"difficulty": "easy/medium/hard",
+		"points": "100"
+	},
+	{
+		"name_en": "Find Mario",
+		"name_fr": "Trouve Mario",
+		"description_en": "Find the hidden Mario",
+		"description_fr": "Trouve le Mario caché",
+		"difficulty": "medium",
+		"points": "10"
+	}
+]
