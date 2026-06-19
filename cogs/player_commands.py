@@ -1,6 +1,13 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
+from utils.config_manager import Difficulty
+from enum import Enum
+
+
+class Language(str, Enum):
+    FR = 'fr'
+    EN = 'en'
 
 
 class PlayerCommands(commands.Cog):
@@ -17,11 +24,7 @@ class PlayerCommands(commands.Cog):
         )
 
         if not leaderboard:
-            embed_obj.add_field(
-                name="EMPTY",
-                value="",
-                inline=False
-            )
+            embed_obj.add_field(name="EMPTY", value="", inline=False)
 
         else:
             position = 1
@@ -31,6 +34,43 @@ class PlayerCommands(commands.Cog):
                     value=f"<@{player_id}> | {points}",
                     inline=False
                 )
+
+        await interaction.response.send_message(embed=embed_obj, ephemeral=True)
+
+    @app_commands.command(name='achievements_list', description='Show all availables achievements')
+    async def achievements_list(
+        self, interaction: discord.Interaction, difficulty: Difficulty = None,
+        language: Language = Language.EN
+    ) -> None:
+
+        achievements = self.bot.achievements_list
+
+        filtered_achievements = achievements
+        if difficulty:
+            pass
+
+        embed_obj = discord.Embed(
+            title="📋 Achievements list",
+            color=discord.Color.og_blurple()
+        )
+
+        language_str = f"name_{language}"
+        description_str = f"description_{language}"
+        difficulty_str = ""
+
+        if difficulty == Difficulty.MEDIUM:
+            difficulty_str = "⭐⭐"
+        elif difficulty == Difficulty.HARD:
+            difficulty_str = "⭐⭐⭐"
+        else:
+            difficulty_str = "⭐"
+
+        for success in filtered_achievements:
+            embed_obj.add_field(
+                name=f"{difficulty_str} {success[language_str]} ({success['points']} points)",
+                value=f"*{success[description_str]}*",
+                inline=False
+            )
 
         await interaction.response.send_message(embed=embed_obj, ephemeral=True)
 
