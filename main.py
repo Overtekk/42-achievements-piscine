@@ -10,7 +10,6 @@ from database.db_manager import DatabaseManager
 
 COGS_FOLDER_PATH = "cogs/"
 
-
 def main():
     try:
         # Load the discord token
@@ -58,11 +57,14 @@ def main():
 
 def _clean_file() -> list[str]:
     files_list: list[str] = []
+    skipped_files = ['view.py']
 
     for file in os.listdir(COGS_FOLDER_PATH):
         file_name = Path(file)
 
         if not check_file_extension(file_name, 'py'):
+            continue
+        if file in skipped_files:
             continue
 
         final_filename = "cogs." + f"{file_name.with_suffix('')}"

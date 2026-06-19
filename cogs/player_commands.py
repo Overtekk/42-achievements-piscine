@@ -2,6 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from utils.config_manager import Difficulty
+from cogs.view import View
 from enum import Enum
 
 
@@ -45,46 +46,60 @@ class PlayerCommands(commands.Cog):
 
         achievements = self.bot.achievements_list
 
-        filtered_achievements = achievements
+        # Filter by difficulty
         if difficulty:
-            pass
+            filtered_achievements = [a for a in achievements if a['difficulty'] == difficulty]
+        else:
+            filtered_achievements = achievements
 
-        embed_obj = discord.Embed(
-            title="📋 Achievements list",
-            color=discord.Color.og_blurple()
-        )
+        # Slice the list
+        n = 10
+        sliced_achievements = [filtered_achievements[i:i + n] for i in range(0, len(filtered_achievements), n)]
 
         language_str = f"name_{language}"
         description_str = f"description_{language}"
         difficulty_str = ""
 
-        if difficulty == Difficulty.MEDIUM:
-            difficulty_str = "⭐⭐"
-        elif difficulty == Difficulty.HARD:
-            difficulty_str = "⭐⭐⭐"
-        else:
-            difficulty_str = "⭐"
+        view_list: list[discord.Embed] = []
 
-        for success in filtered_achievements:
-            embed_obj.add_field(
-                name=f"{difficulty_str} {success[language_str]} ({success['points']} points)",
-                value=f"*{success[description_str]}*",
-                inline=False
+        for chunck in sliced_achievements:
+
+            embed_obj = discord.Embed(
+                title="📋 Achievements list",
+                color=discord.Color.og_blurple()
             )
+            for success in chunck:
+                if success['difficulty'] == Difficulty.EASY:
+                    difficulty_str = "⭐"
+                elif success['difficulty'] == Difficulty.MEDIUM:
+                    difficulty_str = "⭐⭐"
+                else:
+                    difficulty_str = "⭐⭐⭐"
 
-        await interaction.response.send_message(embed=embed_obj, ephemeral=True)
+                embed_obj.add_field(
+                    name=f"{difficulty_str} {success[language_str]} ({success['points']} points)",
+                    value=f"*{success[description_str]}*",
+                    inline=False
+                )
+
+            view_list.append(embed_obj)
+
+        # If empty
+        if not view_list:
+            embed_obj = discord.Embed(
+                title="📋 Achievements list",
+                color=discord.Color.og_blurple()
+            )
+            embed_obj.add_field(
+                name="",
+                value="Empty"
+            )
+            return
+
+        view_object = View(view_list)
+
+        await interaction.response.send_message(embed=view_list[0], view=view_object, ephemeral=True)
 
 
 async def setup(bot):
     await bot.add_cog(PlayerCommands(bot))
-
-
-# leaderboard(interaction: discord.Interaction)
-# to > DatabaseManager.get_leaderboard() and build embedded msg.
-
-# achievements_list(interaction: discord.Interaction, category: str = None, language: str = 'fr')
-# read achievements_list.json and show the filtred list
-
-
-# interaction.response.send_message(embed=..., ephemeral=True)
-# @app_commands.choices
