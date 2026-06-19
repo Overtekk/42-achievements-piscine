@@ -1,9 +1,6 @@
 import aiosqlite
-from pathlib import Path
-
 
 DB_PATH = 'data/database.db'
-
 
 class DatabaseManager():
     def __init__(self, db_path: str = DB_PATH):
@@ -79,10 +76,11 @@ class DatabaseManager():
 
         return True
 
-# unlock_achievement(user_id, achievement_id)
-# valid an achievement
+    async def get_leaderboard(self, limit: int = -1) -> list[tuple[str, int]]:
+        async with aiosqlite.connect(self.db_path) as db:
+            async with db.execute("""
+                SELECT user_id, points FROM users
+                ORDER BY points DESC LIMIT ?
+            """, (limit,)) as cursor:
 
-# get_leaderboard(limit)
-# get the best player from the leaderboard
-
-# SELECT user_id, points FROM users ORDER BY points DESC LIMIT ?
+                return await cursor.fetchall()
