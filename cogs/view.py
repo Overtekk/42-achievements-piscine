@@ -1,6 +1,6 @@
 import discord
 
-class View(discord.ui.View):
+class AchievementView(discord.ui.View):
     def __init__(self, pages: list[discord.Embed]):
         super().__init__(timeout=180)
         self.pages = pages

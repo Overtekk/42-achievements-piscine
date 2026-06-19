@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from utils.config_manager import Difficulty
-from cogs.view import View
+from cogs.view import AchievementView
 from enum import Enum
 
 
@@ -92,11 +92,13 @@ class PlayerCommands(commands.Cog):
             )
             embed_obj.add_field(
                 name="",
-                value="Empty"
+                value="Empty",
+                inline=True
             )
+            await interaction.response.send_message(embed=embed_obj, ephemeral=True)
             return
 
-        view_object = View(view_list)
+        view_object = AchievementView(view_list)
 
         await interaction.response.send_message(embed=view_list[0], view=view_object, ephemeral=True)
 
