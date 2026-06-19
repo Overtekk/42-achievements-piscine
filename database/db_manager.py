@@ -35,7 +35,8 @@ class DatabaseManager():
     async def add_user_points(self, user_id: str, points: int) -> None:
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute("""
-                INSERT INTO users (user_id, points) VALUES (?, ?) ON CONFLICT(user_id)
+                INSERT INTO users (user_id, points) VALUES (?, ?)
+                ON CONFLICT(user_id)
                 DO UPDATE SET points = points + ?
             """, (user_id, points, points))
 
@@ -51,9 +52,32 @@ class DatabaseManager():
 
             await db.commit()
 
-# check_achievement(user_id, achievement_id)
-# check if user already have the achievement
+    async def check_achievement(self, user_id: str, achievement_id: str) -> bool:
+        async with aiosqlite.connect(self.db_path) as db:
+            async with db.execute("""
+                SELECT 1 FROM user_achievements
+                WHERE user_id = ? AND achievement_id = ?
+            """, (user_id, achievement_id)) as cursor:
 
+                candidat = await cursor.fetchone()
+
+                if candidat:
+                    return True
+                return False
+
+    async def unlock_achievement(self, user_id: str, achievement_id: str, points: int) -> bool:
+        if await self.check_achievement(user_id, achievement_id):
+            return False
+
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("""
+                INSERT INTO user_achievements (user_id, achievement_id) VALUES (?, ?)
+            """, (user_id, achievement_id))
+            await db.commit()
+
+            await self.add_user_points(user_id, points)
+
+        return True
 
 # unlock_achievement(user_id, achievement_id)
 # valid an achievement
