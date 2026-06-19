@@ -17,7 +17,7 @@ cursor = database.cursor()
 # Create the table if it doesn't exist
 cursor.execute(
     """CREATE TABLE IF NOT EXISTS leaderboard
-    (discord_name TEXT, achievements count INTEGER)
+    (discord_name TEXT, achievements_count INTEGER)
     """
 )
 database.commit()
