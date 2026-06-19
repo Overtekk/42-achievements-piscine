@@ -1,4 +1,5 @@
 {
+	"server_id": "ID of the server",
 	"channel_id": "channel ID where commands are authorized and achievements are shown",
 	"channel_log": "channel ID where the logs will be writted",
 	"pisciners_role": "role possessed by the pisciners",

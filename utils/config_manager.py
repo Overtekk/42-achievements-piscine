@@ -8,7 +8,7 @@ CONFIG_PATH = "data/config.json"
 ACHIEVEMENT_PATH = "data/achievements_list.json"
 
 KEYS = [
-    'channel_id', 'channel_log'
+    'server_id', 'channel_id', 'channel_log', 'pisciners_role', 'admins'
 ]
 
 
@@ -20,11 +20,14 @@ KEYS = [
 class ConfigModel(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
+    server_id: str = Field(
+        min_length=1, pattern=r"^\d+$"
+    )
     channel_id: str = Field(
-        min_length=19, max_length=19, pattern=r"^\d+$"
+        min_length=19, pattern=r"^\d+$"
     )
     channel_log: str = Field(
-        min_length=19, max_length=19, pattern=r"^\d+$"
+        min_length=19, pattern=r"^\d+$"
     )
     pisciners_role: str = Field(
         min_length=1, pattern=r"^\d+$"
