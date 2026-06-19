@@ -26,6 +26,12 @@ class ConfigModel(BaseModel):
     channel_log: str = Field(
         min_length=19, max_length=19, pattern=r"^\d+$"
     )
+    pisciners_role: str = Field(
+        min_length=1, pattern=r"^\d+$"
+    )
+    admins: list[str] = Field(
+        default_factory=list[str]
+    )
 
 
 def load_config() -> dict[str, str]:

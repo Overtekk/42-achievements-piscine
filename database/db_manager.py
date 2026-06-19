@@ -1,22 +1,64 @@
+import aiosqlite
+from pathlib import Path
+
+
+DB_PATH = 'data/database.db'
+
+
 class DatabaseManager():
-    pass
+    def __init__(self, db_path: str = DB_PATH):
+        self.db_path = db_path
 
+    async def setup_database(self) -> None:
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("PRAGMA foreign_keys = ON;")
 
-# setup_database()
-# create tables if does not exist
+            # Create table users
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS users (
+                    user_id TEXT PRIMARY KEY,
+                    points INTEGER DEFAULT 0
+                );
+            """)
 
-# add_user_points(user_id, points) / remove_user_points(user_id, points)
-# add or remove points to an user
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS user_achievements (
+                    id INTEGER PRIMARY KEY AUTOINCREMENT,
+                    user_id TEXT,
+                    achievement_id TEXT,
+                    FOREIGN KEY (user_ID) REFERENCES users(user_id) ON DELETE CASCADE
+                );
+            """)
 
-# unlock_achievement(user_id, achievement_id)
-# valid an achievement
+            await db.commit()
+
+    async def add_user_points(self, user_id: str, points: int) -> None:
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("""
+                INSERT INTO users (user_id, points) VALUES (?, ?) ON CONFLICT(user_id)
+                DO UPDATE SET points = points + ?
+            """, (user_id, points, points))
+
+            await db.commit()
+
+    async def remove_user_points(self, user_id: str, points: int) -> None:
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("""
+                UPDATE users
+                SET points = MAX(points - ?, 0)
+                WHERE user_id = ?
+            """, (points, user_id))
+
+            await db.commit()
 
 # check_achievement(user_id, achievement_id)
 # check if user already have the achievement
 
+
+# unlock_achievement(user_id, achievement_id)
+# valid an achievement
+
 # get_leaderboard(limit)
 # get the best player from the leaderboard
 
-# learn > aiosqlite
-# INSERT INTO users (user_id, points) VALUES (?, ?) ON CONFLICT(user_id) DO UPDATE SET points = points + ?
 # SELECT user_id, points FROM users ORDER BY points DESC LIMIT ?
