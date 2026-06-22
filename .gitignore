@@ -219,5 +219,5 @@ __marimo__/
 
 # Other
 config.json
-Database.db
+database.db
 achievements_list.json
