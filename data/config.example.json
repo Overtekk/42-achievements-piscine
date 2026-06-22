@@ -1,7 +1,7 @@
 {
 	"server_id": "ID of the server",
 	"channel_id": "channel ID where commands are authorized and achievements are shown",
-	"channel_log": "channel ID where the logs will be writted",
-	"pisciners_role": "role possessed by the pisciners",
-	"admins": ["UUI list for admins of the bot. They can start/stop the event, add/remove achievements from user"]
+	"channel_log_id": "channel ID where the logs will be writted",
+	"pisciners_role_id": "role possessed by the pisciners",
+	"admins_id_list": ["ID list for admins of the bot. They can start/stop the event, add/remove achievements from user"]
 }
