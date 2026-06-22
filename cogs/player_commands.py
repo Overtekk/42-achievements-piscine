@@ -2,7 +2,7 @@ import discord
 from discord import app_commands
 from discord.ext import commands
 from utils.config_manager import Difficulty
-from cogs.view import AchievementView
+from cogs.view import PageView
 from enum import Enum
 
 
@@ -16,29 +16,50 @@ class PlayerCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name='leaderboard', description='Show the leaderboard')
+    @commands.cooldown(1, 20, commands.BucketType.user)
     async def show_leaderboard(self, interaction: discord.Interaction) -> None:
         leaderboard = await self.bot.db.get_leaderboard()
 
-        embed_obj = discord.Embed(
-            title='🏆 **Leaderboard** 🏆',
-            color=discord.Color.gold()
-        )
+        # Slice the list
+        n = 25
+        sliced_players = [leaderboard[i:i + n] for i in range(0, len(leaderboard), n)]
 
-        if not leaderboard:
-            embed_obj.add_field(name="EMPTY", value="", inline=False)
+        view_list: list[discord.Embed] = []
+        position = 1
 
-        else:
-            position = 1
-            for player_id, points in leaderboard:
+        for chunk in sliced_players:
+            embed_obj = discord.Embed(
+                title='🏆 **Leaderboard** 🏆',
+                color=discord.Color.gold()
+            )
+
+            for player_id, points in chunk:
                 embed_obj.add_field(
-                    name=f"{position}.",
-                    value=f"<@{player_id}> | {points}",
+                    name="",
+                    value=f"**{position}**. <@{player_id}>  – *(score: {points})*",
                     inline=False
                 )
+                position += 1
 
-        await interaction.response.send_message(embed=embed_obj, ephemeral=True)
+            view_list.append(embed_obj)
 
-    @app_commands.command(name='achievements_list', description='Show all availables achievements')
+        # If empty
+        if not view_list:
+            embed_obj = discord.Embed(
+                title='🏆 **Leaderboard** 🏆',
+                color=discord.Color.gold()
+            )
+
+            embed_obj.add_field(name="EMPTY :(", value="", inline=False)
+            await interaction.response.send_message(embed=embed_obj, ephemeral=True)
+            return
+
+        view_object = PageView(view_list)
+
+        await interaction.response.send_message(embed=view_list[0], view=view_object, ephemeral=True)
+
+    @app_commands.command(name='achievements', description='Show all availables achievements')
+    @commands.cooldown(1, 20, commands.BucketType.user)
     async def achievements_list(
         self, interaction: discord.Interaction, difficulty: Difficulty = None,
         language: Language = Language.EN
@@ -98,7 +119,7 @@ class PlayerCommands(commands.Cog):
             await interaction.response.send_message(embed=embed_obj, ephemeral=True)
             return
 
-        view_object = AchievementView(view_list)
+        view_object = PageView(view_list)
 
         await interaction.response.send_message(embed=view_list[0], view=view_object, ephemeral=True)
 

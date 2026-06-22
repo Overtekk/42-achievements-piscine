@@ -30,10 +30,15 @@ def main():
         @bot.event
         async def on_ready():
             print_log(f"Bot started as {bot.user.name}")
+
             # Synchronize slash commands
             guild_object = discord.Object(id=bot.config['server_id'])
             bot.tree.copy_global_to(guild=guild_object)
             await bot.tree.sync(guild=guild_object)
+
+            # - Usefull -
+            bot.channel_log = await bot.fetch_channel(bot.config['channel_log_id'])
+            bot.main_channel = await bot.fetch_channel(bot.config['channel_id'])
 
         @bot.event
         async def setup_hook():

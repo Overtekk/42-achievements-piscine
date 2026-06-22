@@ -141,4 +141,12 @@ def load_achievements() -> list[dict[str, str]]:
     except ValidationError as e:
         raise ValueError(f"Invalid config file: {e}") from e
 
-    return achievement_file_validation.model_dump()
+    achievements_list = achievement_file_validation.model_dump()
+
+    # Add an ID to each achievement
+    id: int = 0
+    for achievement in achievements_list:
+        achievement['id'] = id
+        id += 1
+
+    return achievements_list

@@ -76,6 +76,21 @@ class DatabaseManager():
 
         return True
 
+    async def remove_achievement(self, user_id: str, achievement_id: str, points: int) -> bool:
+        if not await self.check_achievement(user_id, achievement_id):
+            return False
+
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("""
+                DELETE FROM user_achievements
+                WHERE user_id = ? and achievement_id = ?
+            """, (user_id, achievement_id))
+            await db.commit()
+
+            await self.remove_user_points(user_id, points)
+
+        return True
+
     async def get_leaderboard(self, limit: int = -1) -> list[tuple[str, int]]:
         async with aiosqlite.connect(self.db_path) as db:
             async with db.execute("""
@@ -84,3 +99,14 @@ class DatabaseManager():
             """, (limit,)) as cursor:
 
                 return await cursor.fetchall()
+
+    async def get_user_achievements(self, user_id: str) -> list[str]:
+        async with aiosqlite.connect(self.db_path) as db:
+            async with db.execute("""
+                SELECT achievement_id FROM user_achievements
+                WHERE user_id = ?
+            """, (user_id,)) as cursor:
+
+                rows = await cursor.fetchall()
+
+                return [row[0] for row in rows]
