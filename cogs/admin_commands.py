@@ -2,6 +2,7 @@ import random
 import discord
 from discord.ext import commands
 from discord import app_commands
+from utils import print_log
 
 
 class AdminCommands(commands.Cog):
@@ -9,15 +10,15 @@ class AdminCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="add_achievement", description="Add an achiemevent to the given player [ADMIN]")
-    async def add_success(self, interaction: discord.Interaction, user: discord.Member, achievement_name: int) -> None:
-        points = await self._search_achievement(achievement_name)
+    async def add_achievement(self, interaction: discord.Interaction, user: discord.Member, achievement_name: int) -> None:
+        success = await self._get_achievement_by_id(achievement_name)
 
         # - SECURITY -
-        if points == -1:
+        if not success:
             await interaction.response.send_message("Achievement not found", ephemeral=True, delete_after=5)
             return
 
-        unlocked = await self.bot.db.unlock_achievement(user.id, achievement_name, points)
+        unlocked = await self.bot.db.unlock_achievement(user.id, achievement_name, success['points'])
         # Check if user have the achievement
         if not unlocked:
             await interaction.response.send_message(f"{user.mention} as already unlock this achievement.", ephemeral=True, delete_after=60)
@@ -25,14 +26,15 @@ class AdminCommands(commands.Cog):
 
         # Send a message to the log channel
         if self.bot.channel_log:
-            await self.bot.channel_log.send(f"{interaction.user} gave the achievement {achievement_name} to {user.mention}")
+            await self.bot.channel_log.send(f"{interaction.user.mention} gave the achievement {success['name_en']} to {user.mention}")
+            print_log(f"{interaction.user.mention} gave the achievement {success['name_en']} to {user.mention}")
         if self.bot.main_channel:
-            await self.bot.main_channel.send(self._send_random_unlock_message(user, achievement_name))
+            await self.bot.main_channel.send(self._send_random_unlock_message(user, success['name_en']))
 
         # End the command
-        await interaction.response.send_message("Done ✅", ephemeral=True)
+        await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)
 
-    @add_success.autocomplete('achievement_name')
+    @add_achievement.autocomplete('achievement_name')
     async def achievement_name_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
         achievements = self.bot.achievements_list
 
@@ -77,14 +79,14 @@ class AdminCommands(commands.Cog):
         return message
 
     @app_commands.command(name="remove_achievement", description="Remove an achievement from a player [ADMIN]")
-    async def remove_success(self, interaction: discord.Interaction, user: discord.Member, achievement_name: int) -> None:
-        points = await self._search_achievement(achievement_name)
+    async def remove_achievement(self, interaction: discord.Interaction, user: discord.Member, achievement_name: int) -> None:
+        success = await self._get_achievement_by_id(achievement_name)
 
         # - SECURITY -
-        if points == -1:
+        if not success:
             await interaction.response.send_message("Achievement not found", ephemeral=True, delete_after=60)
             return
-        unlocked = await self.bot.db.remove_achievement(user.id, achievement_name, points)
+        unlocked = await self.bot.db.remove_achievement(user.id, achievement_name, success['points'])
         # Check if user have the achievement
         if not unlocked:
             await interaction.response.send_message(f"{user.mention} have not this achievement. Can't remove it.", ephemeral=True, delete_after=60)
@@ -92,12 +94,13 @@ class AdminCommands(commands.Cog):
 
         # Send a message to the log channel
         if self.bot.channel_log:
-            await self.bot.channel_log.send(f"{interaction.user} remove the achievement {achievement_name} to {user.mention}")
+            await self.bot.channel_log.send(f"{interaction.user.mention} remove the achievement {success['name_en']} to {user.mention}")
+            print_log(f"{interaction.user.mention} remove the achievement {success['name_en']} to {user.mention}")
 
         # End the command
-        await interaction.response.send_message("Done ✅", ephemeral=True)
+        await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)
 
-    @remove_success.autocomplete('achievement_name')
+    @remove_achievement.autocomplete('achievement_name')
     async def remove_achievement_autocomplete(self, interaction: discord.Interaction, current: str) -> list[app_commands.Choice]:
         target_user = interaction.namespace['user']
 
@@ -114,7 +117,7 @@ class AdminCommands(commands.Cog):
 
         filtered_list = [
             a for a in achievements
-            if a['id'] in unlocked_ids and current.lower() in a['name_en'].lower()
+            if str(a['id']) in unlocked_ids and current.lower() in a['name_en'].lower()
         ]
 
         # 4. Renvoyer les choix (maximum 25)
@@ -127,16 +130,11 @@ class AdminCommands(commands.Cog):
     #    Private methods
     # :-------------------:
 
-    async def _search_achievement(self, achievement_name: int) -> int:
-        achievements = self.bot.achievements_list
-
-        points: int = -1
-        for value in achievements:
-            if achievement_name == value['id']:
-                points = value['points']
-                break
-
-        return points
+    async def _get_achievement_by_id(self, achievement_id: int) -> dict | None:
+        for a in self.bot.achievements_list:
+            if a['id'] == achievement_id:
+                return a
+        return None
 
 
 async def setup(bot):

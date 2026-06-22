@@ -1,4 +1,5 @@
 import aiosqlite
+from utils import is_file_exist, print_log
 
 DB_PATH = 'data/database.db'
 
@@ -7,6 +8,11 @@ class DatabaseManager():
         self.db_path = db_path
 
     async def setup_database(self) -> None:
+        if is_file_exist(DB_PATH):
+            print_log("Database found. Loading.")
+        else:
+            print_log("Database not found. Creating it.")
+
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute("PRAGMA foreign_keys = ON;")
 

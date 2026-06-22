@@ -10,7 +10,7 @@ from rich.style import Style
 # :---------:
 
 
-def is_folder_exist(path_to_folder: pathlib.Path) -> bool:
+def is_folder_exist(path_to_folder: pathlib.Path | str) -> bool:
     """
     Check if a given path exists and is a directory.
 
@@ -20,10 +20,13 @@ def is_folder_exist(path_to_folder: pathlib.Path) -> bool:
     Returns:
         bool: True if the path exists and is a directory, False otherwise.
     """
+    if not isinstance(path_to_folder, pathlib.Path):
+        path_to_folder = pathlib.Path(path_to_folder)
+
     return path_to_folder.exists() and path_to_folder.is_dir()
 
 
-def is_file_exist(file: pathlib.Path) -> bool:
+def is_file_exist(file: pathlib.Path | str) -> bool:
     """
     Check if a given path exists and is a regular file.
 
@@ -33,10 +36,13 @@ def is_file_exist(file: pathlib.Path) -> bool:
     Returns:
         bool: True if the path exists and is a file, False otherwise.
     """
+    if not isinstance(file, pathlib.Path):
+        file = pathlib.Path(file)
+
     return file.exists() and file.is_file()
 
 
-def check_file_extension(file: pathlib.Path, extension: str) -> bool:
+def check_file_extension(file: pathlib.Path | str, extension: str) -> bool:
     """
     Check if a file has the intended extension.
 
@@ -46,12 +52,15 @@ def check_file_extension(file: pathlib.Path, extension: str) -> bool:
     Returns:
         bool: True if the file suffix is right, False otherwise.
     """
+    if not isinstance(file, pathlib.Path):
+        file = pathlib.Path(file)
+
     if not extension.startswith('.'):
         extension = f".{extension}"
     return file.suffix == extension
 
 
-def can_read_file(file: pathlib.Path) -> bool:
+def can_read_file(file: pathlib.Path | str) -> bool:
     """
     Check if a file have the permission to be read
 
@@ -61,10 +70,13 @@ def can_read_file(file: pathlib.Path) -> bool:
     Returns:
         bool: True if the file have the read permission, False otherwise.
     """
+    if not isinstance(file, pathlib.Path):
+        file = pathlib.Path(file)
+
     return os.access(file, os.R_OK)
 
 
-def can_write_to_file(file: pathlib.Path) -> bool:
+def can_write_to_file(file: pathlib.Path | str) -> bool:
     """
     Check if a file have the permission to be writted
 
@@ -74,10 +86,13 @@ def can_write_to_file(file: pathlib.Path) -> bool:
     Returns:
         bool: True if the file have the write permission, False otherwise.
     """
+    if not isinstance(file, pathlib.Path):
+        file = pathlib.Path(file)
+
     return os.access(file, os.W_OK)
 
 
-def can_execute_file(file: pathlib.Path) -> bool:
+def can_execute_file(file: pathlib.Path | str) -> bool:
     """
     Check if a file have the permission to be executed
 
@@ -87,6 +102,9 @@ def can_execute_file(file: pathlib.Path) -> bool:
     Returns:
         bool: True if the file have the execution permission, False otherwise.
     """
+    if not isinstance(file, pathlib.Path):
+        file = pathlib.Path(file)
+
     return os.access(file, os.X_OK)
 
 
