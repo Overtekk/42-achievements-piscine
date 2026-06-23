@@ -10,6 +10,7 @@ class AdminCommands(commands.Cog):
         self.bot = bot
 
     @app_commands.command(name="add_achievement", description="Add an achiemevent to the given player [ADMIN]")
+    @app_commands.default_permissions(manage_guild=True)
     async def add_achievement(self, interaction: discord.Interaction, user: discord.Member, achievement_name: int) -> None:
         success = await self._get_achievement_by_id(achievement_name)
 
@@ -79,6 +80,7 @@ class AdminCommands(commands.Cog):
         return message
 
     @app_commands.command(name="remove_achievement", description="Remove an achievement from a player [ADMIN]")
+    @app_commands.default_permissions(manage_guild=True)
     async def remove_achievement(self, interaction: discord.Interaction, user: discord.Member, achievement_name: int) -> None:
         success = await self._get_achievement_by_id(achievement_name)
 
