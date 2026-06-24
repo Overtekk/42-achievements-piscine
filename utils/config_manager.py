@@ -2,14 +2,9 @@ from utils import is_file_exist, is_folder_exist, check_file_extension, print_lo
 import json
 from pydantic import BaseModel, ConfigDict, Field, ValidationError, RootModel
 from pathlib import Path
-from enum import Enum
 
 CONFIG_PATH = "data/config.json"
 ACHIEVEMENT_PATH = "data/achievements_list.json"
-
-KEYS = [
-    'server_id', 'channel_id', 'channel_log_id', 'pisciners_role_id', 'admin_role_id'
-]
 
 
 # :-------------------:
@@ -89,19 +84,10 @@ def update_config(key: str, value: str) -> dict[str, str]:
 # :------------------:
 
 
-class Difficulty(str, Enum):
-    EASY = 'easy'
-    MEDIUM = 'medium'
-    HARD = 'hard'
-
-
 class AchievementModel(BaseModel):
     model_config = ConfigDict(extra='forbid')
 
-    name_en: str = Field(
-        min_length=1
-    )
-    name_fr: str = Field(
+    name: str = Field(
         min_length=1
     )
     description_en: str = Field(
@@ -110,7 +96,6 @@ class AchievementModel(BaseModel):
     description_fr: str = Field(
         min_length=1
     )
-    difficulty: Difficulty
     points: int
 
 

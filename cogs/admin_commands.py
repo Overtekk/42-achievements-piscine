@@ -27,10 +27,10 @@ class AdminCommands(commands.Cog):
 
         # Send a message to the log channel
         if self.bot.channel_log:
-            await self.bot.channel_log.send(f"{interaction.user.mention} gave the achievement {success['name_en']} to {user.mention}")
-            print_log(f"{interaction.user.mention} gave the achievement {success['name_en']} to {user.mention}")
+            await self.bot.channel_log.send(f"{interaction.user.mention} gave the achievement {success['name']} to {user.mention}")
+            print_log(f"{interaction.user.mention} gave the achievement {success['name']} to {user.mention}")
         if self.bot.main_channel:
-            await self.bot.main_channel.send(self._send_random_unlock_message(user, success['name_en']))
+            await self.bot.main_channel.send(self._send_random_unlock_message(user, success['name'], success['description_en']))
 
         # End the command
         await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)
@@ -41,15 +41,15 @@ class AdminCommands(commands.Cog):
 
         filtered_list = [
             a for a in achievements
-            if current.lower() in a['name_en'].lower()
+            if current.lower() in a['name'].lower()
         ]
 
         return [
-            app_commands.Choice(name=f"{achievement['name_en']}", value=achievement['id'])
+            app_commands.Choice(name=f"{achievement['name']}", value=achievement['id'])
             for achievement in filtered_list
         ][:25]
 
-    def _send_random_unlock_message(self, user: discord.Member, achievement_name: str) -> str:
+    def _send_random_unlock_message(self, user: discord.Member, achievement_name: str, achievement_description: str) -> str:
         n = random.randint(0, 10)
 
         message = f"{user.mention} have unlocked **{achievement_name}**! 🎉"
@@ -77,6 +77,8 @@ class AdminCommands(commands.Cog):
             case 10:
                 message = f"A new achievement have been unlocked by {user.mention}: **{achievement_name}**"
 
+        message += f"\n[*{achievement_description}*]"
+
         return message
 
     @app_commands.command(name="remove_achievement", description="Remove an achievement from a player [ADMIN]")
@@ -96,8 +98,8 @@ class AdminCommands(commands.Cog):
 
         # Send a message to the log channel
         if self.bot.channel_log:
-            await self.bot.channel_log.send(f"{interaction.user.mention} remove the achievement {success['name_en']} to {user.mention}")
-            print_log(f"{interaction.user.mention} remove the achievement {success['name_en']} to {user.mention}")
+            await self.bot.channel_log.send(f"{interaction.user.mention} remove the achievement {success['name']} to {user.mention}")
+            print_log(f"{interaction.user.mention} remove the achievement {success['name']} to {user.mention}")
 
         # End the command
         await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)
@@ -119,12 +121,12 @@ class AdminCommands(commands.Cog):
 
         filtered_list = [
             a for a in achievements
-            if str(a['id']) in unlocked_ids and current.lower() in a['name_en'].lower()
+            if str(a['id']) in unlocked_ids and current.lower() in a['name'].lower()
         ]
 
         # 4. Renvoyer les choix (maximum 25)
         return [
-            app_commands.Choice(name=f"{achievement['name_en']}", value=achievement['id'])
+            app_commands.Choice(name=f"{achievement['name']}", value=achievement['id'])
             for achievement in filtered_list
         ][:25]
 
