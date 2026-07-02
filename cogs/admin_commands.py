@@ -22,7 +22,7 @@ class AdminCommands(commands.Cog):
         unlocked = await self.bot.db.unlock_achievement(user.id, achievement_name, success['points'])
         # Check if user have the achievement
         if not unlocked:
-            await interaction.response.send_message(f"{user.mention} as already unlock this achievement.", ephemeral=True, delete_after=60)
+            await interaction.response.send_message(f"{user.mention} as already unlocked this achievement.", ephemeral=True, delete_after=60)
             return
 
         # Send a message to the log channel

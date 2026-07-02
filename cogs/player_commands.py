@@ -59,36 +59,38 @@ class PlayerCommands(commands.Cog):
     @app_commands.command(name='achievements', description='Show all availables achievements')
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def achievements_list(
-        self, interaction: discord.Interaction, language: Language = Language.EN
+        self, interaction: discord.Interaction, language: Language = Language.EN, user: discord.Member = None
     ) -> None:
 
         achievements = self.bot.achievements_list
-
-        # Filter by difficulty
-        # if difficulty:
-        #     filtered_achievements = [a for a in achievements if a['difficulty'] == difficulty]
-        # else:
-        #     filtered_achievements = achievements
+        target_user = user or interaction.user
 
         # Slice the list
         n = 10
         sliced_achievements = [achievements[i:i + n] for i in range(0, len(achievements), n)]
 
-        description_success: str = f"description_{language}"
-
         view_list: list[discord.Embed] = []
 
         for chunck in sliced_achievements:
             description_text: str = "\u200e\n"
-            description_text += "----------------\n"
 
             for success in chunck:
-                description_text += (
-                    f"**{success['name']}** - earn {success['points']}"
-                )
+                if await self.bot.db.check_achievement(target_user.id, success['id']):
+                    description_text += f"⦁ **{success['name']}** ⧿ ({success['points']} points) ✅"
+                else:
+                    description_text += f"⦁ **{success['name']}** ⧿ ({success['points']} points) ❌"
 
+                description_text += f"\n*{success[f'description_{language}']}*\n\n"
+
+            if user:
                 embed_obj = discord.Embed(
-                    title="📋 Achievements 📋",
+                    title=f"📋 Achievements List of {target_user.display_name} 📋",
+                    description=description_text,
+                    color=discord.Color.og_blurple()
+                )
+            else:
+                embed_obj = discord.Embed(
+                    title="📋 Personal Achievements List 📋",
                     description=description_text,
                     color=discord.Color.og_blurple()
                 )
