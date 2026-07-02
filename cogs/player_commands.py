@@ -1,7 +1,7 @@
 import discord
 from discord import app_commands
 from discord.ext import commands
-from cogs.view import PageView
+from cogs.view import PageView, AchievementPageView
 from enum import Enum
 
 
@@ -62,58 +62,18 @@ class PlayerCommands(commands.Cog):
         self, interaction: discord.Interaction, language: Language = Language.EN, user: discord.Member = None
     ) -> None:
 
-        achievements = self.bot.achievements_list
         target_user = user or interaction.user
 
-        # Slice the list
-        n = 10
-        sliced_achievements = [achievements[i:i + n] for i in range(0, len(achievements), n)]
+        view_object = AchievementPageView(
+            bot=self.bot,
+            achievements=self.bot.achievements_list,
+            target_user=target_user,
+            language=language.value
+        )
 
-        view_list: list[discord.Embed] = []
+        await view_object._generate_view()
 
-        for chunck in sliced_achievements:
-            description_text: str = "\u200e\n"
-
-            for success in chunck:
-                if await self.bot.db.check_achievement(target_user.id, success['id']):
-                    description_text += f"⦁ **{success['name']}** ⧿ ({success['points']} points) ✅"
-                else:
-                    description_text += f"⦁ **{success['name']}** ⧿ ({success['points']} points) ❌"
-
-                description_text += f"\n*{success[f'description_{language}']}*\n\n"
-
-            if user:
-                embed_obj = discord.Embed(
-                    title=f"📋 Achievements List of {target_user.display_name} 📋",
-                    description=description_text,
-                    color=discord.Color.og_blurple()
-                )
-            else:
-                embed_obj = discord.Embed(
-                    title="📋 Personal Achievements List 📋",
-                    description=description_text,
-                    color=discord.Color.og_blurple()
-                )
-
-            view_list.append(embed_obj)
-
-        # If empty
-        if not view_list:
-            embed_obj = discord.Embed(
-                title="📋 Achievements list",
-                color=discord.Color.og_blurple()
-            )
-            embed_obj.add_field(
-                name="",
-                value="Empty",
-                inline=True
-            )
-            await interaction.response.send_message(embed=embed_obj, ephemeral=True)
-            return
-
-        view_object = PageView(view_list)
-
-        await interaction.response.send_message(embed=view_list[0], view=view_object, ephemeral=True)
+        await interaction.response.send_message(embed=view_object.pages[0], view=view_object, ephemeral=True)
 
 
 async def setup(bot):
