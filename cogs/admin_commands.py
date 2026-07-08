@@ -13,10 +13,14 @@ class AdminCommands(commands.Cog):
     @app_commands.default_permissions(manage_guild=True)
     async def add_achievement(self, interaction: discord.Interaction, user: discord.Member, achievement_name: int) -> None:
         success = await self._get_achievement_by_id(achievement_name)
+        pisciners_role = int(self.bot.config['pisciners_role_id'])
 
         # - SECURITY -
         if not success:
             await interaction.response.send_message("Achievement not found", ephemeral=True, delete_after=5)
+            return
+        if not any(role.id == pisciners_role for role in user.roles):
+            await interaction.response.send_message(f"{user.mention} is not a pisciners.", ephemeral=True, delete_after=60)
             return
 
         unlocked = await self.bot.db.unlock_achievement(user.id, achievement_name, success['points'])
