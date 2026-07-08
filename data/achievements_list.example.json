@@ -3,12 +3,12 @@
 		"name": "name of the achievement",
 		"description_en": "description of the achievement",
 		"description_fr": "description du succès",
-		"points": 100
+		"points": 50
 	},
 	{
-		"name": "Find Mario",
-		"description_en": "Find the hidden Mario",
-		"description_fr": "Trouve le Mario caché",
-		"points": 10
+		"name": "Welcome!",
+		"description_en": "Say 'Bonjour!!' to everyone",
+		"description_fr": "Dit 'Bonjour!!' à tout le monde",
+		"points": 2
 	}
 ]

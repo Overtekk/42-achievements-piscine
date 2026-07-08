@@ -5,10 +5,12 @@ import discord
 from pathlib import Path
 from dotenv import load_dotenv
 from discord.ext import commands
-from utils import print_error, print_log, load_config, load_achievements, check_file_extension
+from utils import print_error, print_log, load_config, load_achievements
 from database.db_manager import DatabaseManager
 
 COGS_FOLDER_PATH = "cogs/"
+base_path = Path(COGS_FOLDER_PATH).parent
+
 
 def main():
     try:
@@ -21,6 +23,8 @@ def main():
 
         # Create the bot
         bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+        bot.channel_log = None
+        bot.main_channel = None
         # Create/Load the database
         bot.db = DatabaseManager()
         # Load the config and achievements list
@@ -64,17 +68,17 @@ def _clean_file() -> list[str]:
     files_list: list[str] = []
     skipped_files = ['view.py']
 
-    for file in os.listdir(COGS_FOLDER_PATH):
-        file_name = Path(file)
-
-        if not check_file_extension(file_name, 'py'):
-            continue
-        if file in skipped_files:
+    for file_path in Path(COGS_FOLDER_PATH).rglob("*.py"):
+        if file_path.name in skipped_files:
             continue
 
-        final_filename = "cogs." + f"{file_name.with_suffix('')}"
+        relative_path = file_path.relative_to(base_path)
+        clean_path = relative_path.with_suffix('')
+        final_filename = ".".join(clean_path.parts)
+
         files_list.append(final_filename)
 
+    print_log(f"Found {len(files_list)} cogs to load.\n{files_list}")
     return files_list
 
 

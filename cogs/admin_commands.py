@@ -1,4 +1,3 @@
-import random
 import discord
 from discord.ext import commands
 from discord import app_commands
@@ -14,6 +13,7 @@ class AdminCommands(commands.Cog):
     async def add_achievement(self, interaction: discord.Interaction, user: discord.Member, achievement_name: int) -> None:
         success = await self._get_achievement_by_id(achievement_name)
         pisciners_role = int(self.bot.config['pisciners_role_id'])
+        achievement_sys = self.bot.get_cog("AchievementSystem")
 
         # - SECURITY -
         if not success:
@@ -29,22 +29,13 @@ class AdminCommands(commands.Cog):
             await interaction.response.send_message(f"{user.mention} as already unlocked this achievement.", ephemeral=True, delete_after=60)
             return
 
-        embed_obj = discord.Embed(
-            title="💫 Achivement Unlocked 💫",
-            description=(
-                "\u200e"
-                f"{self._send_random_unlock_message(user, success['name'], success['description_en'])}"
-            ),
-            color=discord.Color.dark_blue()
-        )
-        embed_obj.set_thumbnail(url=user.display_avatar.url)
+        if achievement_sys:
+            await achievement_sys.send_unlock_success_message(user, success)
 
         # Send a message to the log channel
         if self.bot.channel_log:
             await self.bot.channel_log.send(f"{interaction.user.mention} gave the achievement {success['name']} to {user.mention}")
             print_log(f"{interaction.user.mention} gave the achievement {success['name']} to {user.mention}")
-        if self.bot.main_channel:
-            await self.bot.main_channel.send(embed=embed_obj)
 
         # End the command
         await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)
@@ -115,38 +106,6 @@ class AdminCommands(commands.Cog):
     # :-------------------:
     #    Private methods
     # :-------------------:
-
-    def _send_random_unlock_message(self, user: discord.Member, achievement_name: str, achievement_description: str) -> str:
-        n = random.randint(0, 10)
-
-        message = f"{user.mention} have unlocked **{achievement_name}**! 🎉"
-        match n:
-            case 0:
-                message = message
-            case 1:
-                message = f"{user.mention} have unlocked **{achievement_name}**! GG 🔥"
-            case 2:
-                message = f"New achievement unlocked for {user.mention}: **{achievement_name}**"
-            case 3:
-                message = f"**{achievement_name}** have been unlocked by {user.mention}"
-            case 4:
-                message = f"**{achievement_name}** have been unlocked by {user.mention}. Congrats! 🌟"
-            case 5:
-                message = f"{user.mention} has made the advancement [**{achievement_name}**]"
-            case 6:
-                message = f"{user.mention} now possess: **{achievement_name}**. GG 👏"
-            case 7:
-                message = f"{user.mention} have unlocked the achievement **{achievement_name}**"
-            case 8:
-                message = f"GG {user.mention} for the achievement: **{achievement_name}**! 🎊"
-            case 9:
-                message = f"{user.mention} have unlocked **{achievement_name}** 👍"
-            case 10:
-                message = f"A new achievement have been unlocked by {user.mention}: **{achievement_name}**"
-
-        message += f"\n\n[*{achievement_description}*]"
-
-        return message
 
     async def _get_achievement_by_id(self, achievement_id: int) -> dict | None:
         for a in self.bot.achievements_list:
