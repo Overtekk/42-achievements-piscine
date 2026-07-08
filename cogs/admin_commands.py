@@ -25,12 +25,22 @@ class AdminCommands(commands.Cog):
             await interaction.response.send_message(f"{user.mention} as already unlocked this achievement.", ephemeral=True, delete_after=60)
             return
 
+        embed_obj = discord.Embed(
+            title="💫 Achivement Unlocked 💫",
+            description=(
+                "\u200e"
+                f"{self._send_random_unlock_message(user, success['name'], success['description_en'])}"
+            ),
+            color=discord.Color.dark_blue()
+        )
+        embed_obj.set_thumbnail(url=user.display_avatar.url)
+
         # Send a message to the log channel
         if self.bot.channel_log:
             await self.bot.channel_log.send(f"{interaction.user.mention} gave the achievement {success['name']} to {user.mention}")
             print_log(f"{interaction.user.mention} gave the achievement {success['name']} to {user.mention}")
         if self.bot.main_channel:
-            await self.bot.main_channel.send(self._send_random_unlock_message(user, success['name'], success['description_en']))
+            await self.bot.main_channel.send(embed=embed_obj)
 
         # End the command
         await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)
