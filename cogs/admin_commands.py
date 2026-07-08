@@ -49,38 +49,6 @@ class AdminCommands(commands.Cog):
             for achievement in filtered_list
         ][:25]
 
-    def _send_random_unlock_message(self, user: discord.Member, achievement_name: str, achievement_description: str) -> str:
-        n = random.randint(0, 10)
-
-        message = f"{user.mention} have unlocked **{achievement_name}**! 🎉"
-        match n:
-            case 0:
-                message = message
-            case 1:
-                message = f"{user.mention} have unlocked **{achievement_name}**! GG 🔥"
-            case 2:
-                message = f"New achievement unlocked for {user.mention}: **{achievement_name}**"
-            case 3:
-                message = f"**{achievement_name}** have been unlocked by {user.mention}"
-            case 4:
-                message = f"**{achievement_name}** have been unlocked by {user.mention}. Congrats! 🌟"
-            case 5:
-                message = f"{user.mention} has made the advancement [**{achievement_name}**]"
-            case 6:
-                message = f"{user.mention} now possess: **{achievement_name}**. GG 👏"
-            case 7:
-                message = f"{user.mention} have unlocked the achievement **{achievement_name}**"
-            case 8:
-                message = f"GG {user.mention} for the achievement: **{achievement_name}**! 🎊"
-            case 9:
-                message = f"{user.mention} have unlocked **{achievement_name}** 👍"
-            case 10:
-                message = f"A new achievement have been unlocked by {user.mention}: **{achievement_name}**"
-
-        message += f"\n[*{achievement_description}*]"
-
-        return message
-
     @app_commands.command(name="remove_achievement", description="Remove an achievement from a player [ADMIN]")
     @app_commands.default_permissions(manage_guild=True)
     async def remove_achievement(self, interaction: discord.Interaction, user: discord.Member, achievement_name: int) -> None:
@@ -134,6 +102,38 @@ class AdminCommands(commands.Cog):
     #    Private methods
     # :-------------------:
 
+    def _send_random_unlock_message(self, user: discord.Member, achievement_name: str, achievement_description: str) -> str:
+        n = random.randint(0, 10)
+
+        message = f"{user.mention} have unlocked **{achievement_name}**! 🎉"
+        match n:
+            case 0:
+                message = message
+            case 1:
+                message = f"{user.mention} have unlocked **{achievement_name}**! GG 🔥"
+            case 2:
+                message = f"New achievement unlocked for {user.mention}: **{achievement_name}**"
+            case 3:
+                message = f"**{achievement_name}** have been unlocked by {user.mention}"
+            case 4:
+                message = f"**{achievement_name}** have been unlocked by {user.mention}. Congrats! 🌟"
+            case 5:
+                message = f"{user.mention} has made the advancement [**{achievement_name}**]"
+            case 6:
+                message = f"{user.mention} now possess: **{achievement_name}**. GG 👏"
+            case 7:
+                message = f"{user.mention} have unlocked the achievement **{achievement_name}**"
+            case 8:
+                message = f"GG {user.mention} for the achievement: **{achievement_name}**! 🎊"
+            case 9:
+                message = f"{user.mention} have unlocked **{achievement_name}** 👍"
+            case 10:
+                message = f"A new achievement have been unlocked by {user.mention}: **{achievement_name}**"
+
+        message += f"\n\n[*{achievement_description}*]"
+
+        return message
+
     async def _get_achievement_by_id(self, achievement_id: int) -> dict | None:
         for a in self.bot.achievements_list:
             if a['id'] == achievement_id:
@@ -143,14 +143,3 @@ class AdminCommands(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(AdminCommands(bot))
-
-
-# start_event(interaction: discord.Interaction)
-# start the event
-
-
-# stop_event(interaction: discord.Interaction)
-# stop the event
-
-
-# @app_commands.checks.has_role(ROLE_ID)

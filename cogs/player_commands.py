@@ -3,6 +3,9 @@ from discord import app_commands
 from discord.ext import commands
 from cogs.view import PageView, AchievementPageView
 from enum import Enum
+from utils import check_file_extension
+
+PICTURE_EXTENSION = ['.png', '.jpg', '.jpeg']
 
 
 class Language(str, Enum):
@@ -74,6 +77,42 @@ class PlayerCommands(commands.Cog):
         await view_object._generate_view()
 
         await interaction.response.send_message(embed=view_object.pages[0], view=view_object, ephemeral=True)
+
+    @app_commands.command(name='send_message', description="Send a message to the tutor")
+    @commands.cooldown(1, 60, commands.BucketType.user)
+    async def send_message_to_tutor(self, interaction: discord.Interaction, message: str, picture: discord.Attachment = None) -> None:
+        # PROTECTION
+        if len(message) == 0:
+            await interaction.response.send_message("ERROR ❌. Can't send empty message.", ephemeral=True, delete_after=10)
+            return
+
+        # CHECK PICTURE EXTENSION (prevent sending other things than a picture)
+        if picture:
+            flag = False
+            for extension in PICTURE_EXTENSION:
+                if check_file_extension(picture.filename, extension):
+                    flag = True
+                    break
+
+            if not flag:
+                await interaction.response.send_message(f"ERROR ❌. Not  picture. Accepted extension: {PICTURE_EXTENSION}", ephemeral=True, delete_after=10)
+                return
+
+        embed_obj = discord.Embed(
+            title=f"New message from {interaction.user.display_name}",
+            description=("\u200e\n"
+                        f"{message}")
+        )
+        embed_obj.set_author(name=f"{interaction.user.display_name}")
+        if picture:
+            embed_obj.set_image(url=picture.url)
+
+        # Send a message to the log channel
+        if self.bot.channel_log:
+            await self.bot.channel_log.send(embed=embed_obj)
+
+        # End the command
+        await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)
 
 
 async def setup(bot):
