@@ -16,7 +16,7 @@ class DatabaseManager():
         async with aiosqlite.connect(self.db_path) as db:
             await db.execute("PRAGMA foreign_keys = ON;")
 
-            # Create table users
+            # Create table users + points
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS users (
                     user_id TEXT PRIMARY KEY,
@@ -24,13 +24,22 @@ class DatabaseManager():
                 );
             """)
 
+            # Create table users + achievements
             await db.execute("""
                 CREATE TABLE IF NOT EXISTS user_achievements (
                     id INTEGER PRIMARY KEY AUTOINCREMENT,
                     user_id TEXT,
                     achievement_id TEXT,
-                    FOREIGN KEY (user_ID) REFERENCES users(user_id) ON DELETE CASCADE
+                    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
                 );
+            """)
+
+            await db.execute("""
+                CREATE TABLE IF NOT EXISTS user_discord_messages (
+                    user_id TEXT PRIMARY KEY,
+                    nb_messages INTEGER DEFAULT 0,
+                    FOREIGN KEY (user_id) REFERENCES users(user_id) ON DELETE CASCADE
+                )
             """)
 
             await db.commit()
@@ -97,7 +106,7 @@ class DatabaseManager():
 
         return True
 
-    async def get_leaderboard(self, limit: int = -1) -> list[tuple[str, int]]:
+    async def get_leaderboard(self, limit: int = 999999) -> list[tuple[str, int]]:
         async with aiosqlite.connect(self.db_path) as db:
             async with db.execute("""
                 SELECT user_id, points FROM users
@@ -116,3 +125,35 @@ class DatabaseManager():
                 rows = await cursor.fetchall()
 
                 return [row[0] for row in rows]
+
+    async def increment_user_message_count(self, user_id: str) -> None:
+        async with aiosqlite.connect(self.db_path) as db:
+            await db.execute("""
+                INSERT INTO user_discord_messages (user_id, nb_messages)
+                VALUES (?, 1)
+                ON CONFLICT(user_id) DO UPDATE SET nb_messages = nb_messages + 1
+            """, (user_id,))
+
+            await db.commit()
+
+    async def check_user_message_count(self, user_id: str) -> int:
+        async with aiosqlite.connect(self.db_path) as db:
+            async with db.execute("""
+                SELECT nb_messages FROM user_discord_messages
+                WHERE user_id = ?
+            """, (user_id,)) as cursor:
+
+                nb_msg = await cursor.fetchone()
+
+                return nb_msg[0] if nb_msg else 0
+
+    async def get_users_message_count(self, limit: int = 999999) -> list[tuple[str, int]]:
+        async with aiosqlite.connect(self.db_path) as db:
+            async with db.execute("""
+                SELECT user_id, nb_messages FROM user_discord_messages
+                ORDER BY nb_messages DESC LIMIT ?
+            """, (limit,)) as cursor:
+
+                rows = await cursor.fetchall()
+
+                return rows

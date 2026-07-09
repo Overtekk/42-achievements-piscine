@@ -1,6 +1,7 @@
 import discord
 from discord.ext import commands
 from discord import app_commands
+from cogs.view import PageView
 from utils import print_log
 
 
@@ -102,6 +103,49 @@ class AdminCommands(commands.Cog):
             app_commands.Choice(name=f"{achievement['name']}", value=achievement['id'])
             for achievement in filtered_list
         ][:25]
+
+    @app_commands.command(name='list_nb_messages', description='See the leaderboard of the numbers of message send by members.')
+    @commands.cooldown(1, 20, commands.BucketType.user)
+    @app_commands.default_permissions(manage_guild=True)
+    async def leaderboard_nb_messages(self, interaction: discord.Interaction) -> None:
+        leaderboard = await self.bot.db.get_users_message_count()
+
+        # Slice the list
+        n = 20
+        sliced_players = [leaderboard[i:i + n] for i in range(0, len(leaderboard), n)]
+
+        view_list: list[discord.Embed] = []
+        position = 1
+
+        for chunk in sliced_players:
+            description_text: str = "\u200e\n"
+
+            for player_id, points in chunk:
+                description_text += f"**{position}**. <@{player_id}> - *messages: {points}*\n"
+                position += 1
+
+            embed_obj = discord.Embed(
+                title='⌨️ **Number of messages sent** ⌨️',
+                description=description_text,
+                color=discord.Color.gold()
+            )
+
+            view_list.append(embed_obj)
+
+        # If empty
+        if not view_list:
+            embed_obj = discord.Embed(
+                title='⌨️ **Number of messages sent** ⌨️',
+                description="\nEmpty :(\n",
+                color=discord.Color.gold()
+            )
+
+            await interaction.response.send_message(embed=embed_obj, ephemeral=True)
+            return
+
+        view_object = PageView(view_list)
+
+        await interaction.response.send_message(embed=view_list[0], view=view_object, ephemeral=True)
 
     # :-------------------:
     #    Private methods

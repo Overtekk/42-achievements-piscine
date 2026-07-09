@@ -1,0 +1,10 @@
+{
+	"sqltools.connections": [
+		{
+			"previewLimit": 50,
+			"driver": "SQLite",
+			"database": "${workspaceFolder:42-achievements-piscine}/data/database.db",
+			"name": "data42bot"
+		}
+	]
+}
