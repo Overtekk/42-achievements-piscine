@@ -51,7 +51,10 @@ class AchievementPageView(PageView):
 
         self.filter_state = FILTER_STATE.ALL
 
+        self.total_achievements = len(self.bot.achievements_list)
+
     async def _generate_view(self) -> None:
+        user_total_success: int = len(await self.bot.db.get_user_achievements(self.target_user.id))
         filter_success = []
 
         for success in self.achievements:
@@ -74,7 +77,8 @@ class AchievementPageView(PageView):
         view_list: list[discord.Embed] = []
 
         for chunck in sliced_achievements:
-            description_text: str = "\u200e\n"
+            description_text: str = "\u200e"
+            description_text += f"{user_total_success}/{self.total_achievements} achievements \u200e\n\n"
 
             for success in chunck:
                 is_curr_unlocked = await self.bot.db.check_achievement(str(self.target_user.id), success['id'])
@@ -104,6 +108,7 @@ class AchievementPageView(PageView):
                 value="Empty",
                 inline=True
             )
+            view_list.append(embed_obj)
 
         self.pages = view_list
 

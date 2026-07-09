@@ -12,11 +12,12 @@ class CustomAchievements(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.achievement_sys = self.bot.get_cog("AchievementSystem")
+        self.pisciners_role = int(self.bot.config['pisciners_role_id'])
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         # - SECURITY -
-        if message.author.bot:
+        if message.author.bot or not any(role.id == self.pisciners_role for role in message.author.roles):
             return
 
         if message.content == BONJOUR_MESSAGE:

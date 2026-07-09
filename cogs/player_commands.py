@@ -59,7 +59,7 @@ class PlayerCommands(commands.Cog):
 
         await interaction.response.send_message(embed=view_list[0], view=view_object, ephemeral=True)
 
-    @app_commands.command(name='achievements', description='Show all availables achievements')
+    @app_commands.command(name='achievements', description='Show the achievements list')
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def achievements_list(
         self, interaction: discord.Interaction, language: Language = Language.EN, user: discord.Member = None
@@ -114,6 +114,62 @@ class PlayerCommands(commands.Cog):
         # End the command
         await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)
 
+    @app_commands.command(name='information', description="Show global information about the bot")
+    @commands.cooldown(1, 360, commands.BucketType.user)
+    async def information_command(self, interaction: discord.Interaction, language: Language = Language.EN) -> None:
+        description_txt = "\u200e\n"
+
+        if language == Language.EN:
+            description_txt += (
+                "This bot is used to track and award achievements during your piscine! 🏆\n\n"
+                "### 🌟 How It Works\n"
+                "As you progress through the piscine, complete projects, or interact with the community, "
+                "you will unlock various achievements. Each unlocked achievement grants you points and "
+                "boosts you on the server leaderboard!\n\n"
+                "### 📋 Main Commands\n"
+                "• `/achievements` ⧿ View your personal achievement checklist (unlocked ✅ / locked ❌). "
+                "You can choose your language for the achievement description. "
+                "You can also specify an user to see his achievements list.\n"
+                "• `/leaderboard` ⧿ Check the top players of the piscine and see your current standing.\n"
+                "• `/information` ⧿ Display this helpful guide.\n\n"
+                "### ✉️ Contacting Tutors\n"
+                "Some achievements need a proof. To do that, use the **`/send_message`** command! "
+                "You can write your demand (please, specify the success name at least), and optionally attach a screenshot/picture if required."
+                "Your message will be securely forwarded directly to the tutor team and the success will be granted as soon as possible! "
+                "If there is a problem, a tutor will contact you! Don't worry, some achievements can be automatically unlocked.\n"
+                "Of course, it's not needed to participate and will not affect your piscine. It's just a fun thing to do while your working! 🫡\n"
+                "\nGood luck!"
+            )
+
+        else:
+            description_txt += (
+                "Ce bot est utilisé pour suivre et attribuer des succès pendant votre piscine ! 🏆\n\n"
+                "### 🌟 Comment ça fonctionne\n"
+                "Au fur et à mesure de votre progression dans la piscine, que ce soit en terminant des projets ou en "
+                "interagissant avec la communauté, vous débloquerez divers succès. Chaque succès débloqué vous "
+                "accorde des points et vous propulse dans le classement du serveur !\n\n"
+                "### 📋 Commandes principales\n"
+                "• `/achievements` ⧿ Affiche la liste de vos succès personnels (débloqués ✅ / verrouillés ❌). "
+                "Vous pouvez choisir la langue de la description du succès. "
+                "Vous pouvez également cibler un utilisateur pour consulter sa liste de succès.\n"
+                "• `/leaderboard` ⧿ Consulte le top des joueurs de la piscine et affiche ton rang actuel.\n"
+                "• `/information` ⧿ Affiche ce guide d'aide.\n\n"
+                "### ✉️ Contacter les Tuteurs\n"
+                "Certaines réussites nécessitent une preuve. Pour cela, utilisez la commande **`/send_message`** ! "
+                "Vous pouvez y écrire votre demande (veuillez spécifier au moins le nom du succès), et facultativement y joindre une capture d'écran/image si nécessaire. "
+                "Votre message sera transmis en toute sécurité directement à l'équipe des tuteurs et le succès vous sera accordé dès que possible ! "
+                "En cas de problème, un tuteur vous contactera ! Ne vous inquiétez pas, certains succès peuvent se débloquer automatiquement.\n"
+                "Bien sûr, il n'est pas obligatoire de participer et cela n'affectera en rien votre piscine. C'est juste un petit jeu amusant pendant que vous travaillez ! 🫡\n"
+                "\nBonne chance !"
+                )
+
+        embed_obj = discord.Embed(
+            title="📒 **Informations** 📒",
+            description=description_txt,
+            color=discord.Color.dark_green()
+        )
+
+        await interaction.response.send_message(embed=embed_obj, ephemeral=True)
 
 async def setup(bot):
     await bot.add_cog(PlayerCommands(bot))

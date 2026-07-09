@@ -1,11 +1,17 @@
 import random
 import discord
-from discord.ext import commands
+from discord.ext import commands, tasks
 
 
 class AchievementSystem(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
+
+        # Start the task
+        self.send_leaderboard.start()
+
+    def cog_unload(self) -> None:
+        self.send_leaderboard.cancel()
 
     async def send_unlock_success_message(self, user: discord.Member, success) -> None:
         # Create the embeded object
@@ -20,6 +26,36 @@ class AchievementSystem(commands.Cog):
         embed_obj.set_thumbnail(url=user.display_avatar.url)
 
         # Send the message
+        if self.bot.main_channel:
+            await self.bot.main_channel.send(embed=embed_obj)
+
+    @tasks.loop(hours=4)
+    async def send_leaderboard(self) -> None:
+        if not self.bot.is_ready():
+            return
+
+        leaderboard = await self.bot.db.get_leaderboard()
+
+        # Slice the list
+        n = 10
+        sliced_players = [leaderboard[i:i + n] for i in range(0, len(leaderboard), n)]
+
+        position = 1
+        description_text = "No score yet."
+
+        for chunk in sliced_players:
+            description_text: str = "\u200e\n"
+
+            for player_id, points in chunk:
+                description_text += f"**{position}**. <@{player_id}> - *score: {points}*\n"
+                position += 1
+
+        embed_obj = discord.Embed(
+            title='🏆 **Leaderboard - Top 10** 🏆',
+            description=description_text,
+            color=discord.Color.gold()
+        )
+
         if self.bot.main_channel:
             await self.bot.main_channel.send(embed=embed_obj)
 
