@@ -3,9 +3,8 @@
 
 import discord
 from discord.ext import commands
-
-
-BONJOUR_MESSAGE: str = "Bonjour!!"
+from utils import print_error
+from cogs.custom.message import SecretText
 
 
 class CustomAchievements(commands.Cog):
@@ -30,8 +29,28 @@ class CustomAchievements(commands.Cog):
             await self._unlock_achievement(message.author.id, message.author, 'Spamton')
 
         # CHECK THE 'BONJOUR!!'
-        if message.content == BONJOUR_MESSAGE:
+        if message.content == SecretText.BONJOUR_MESSAGE:
             await self._unlock_achievement(message.author.id, message.author, 'Welcome!')
+
+        # CHECK THE SECRET1_1
+        if message.content == SecretText.SECRET1_1:
+            await self._delete_message(message)
+
+            try:
+                await message.author.send(
+                    SecretText.FIRST_MESSAGE1
+                )
+                await message.author.send(
+                    SecretText.FIRST_MESSAGE2
+                )
+                await message.author.send(
+                    SecretText.FIRST_MESSAGE3
+                )
+            except discord.Forbidden:
+                print_error(f"{message.author.display_name} can't received DM. Sending ephemeral message.")
+                await message.channel.send(
+                    f"{message.author.mention} can't send you a DM... 😥", delete_after=10, silent=True
+                )
 
     # :-------------------:
     #    Private methods
@@ -53,6 +72,14 @@ class CustomAchievements(commands.Cog):
 
         if self.achievement_sys and unlocked:
             await self.achievement_sys.send_unlock_success_message(user, target_success)
+
+    async def _delete_message(self, message: discord.Message) -> None:
+        try:
+            await message.delete()
+        except discord.Forbidden:
+            print_error("Missing permission to delete message.")
+        except discord.NotFound:
+            pass
 
 async def setup(bot):
     await bot.add_cog(CustomAchievements(bot))

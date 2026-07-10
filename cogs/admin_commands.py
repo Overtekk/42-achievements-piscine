@@ -36,7 +36,7 @@ class AdminCommands(commands.Cog):
         # Send a message to the log channel
         if self.bot.channel_log:
             await self.bot.channel_log.send(f"{interaction.user.mention} gave the achievement {success['name']} to {user.mention}")
-            print_log(f"{interaction.user.mention} gave the achievement {success['name']} to {user.mention}")
+            print_log(f"{interaction.user.mention} ({interaction.user.display_name}) gave the achievement {success['name']} to {user.mention} ({user.display_name})")
 
         # End the command
         await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)
@@ -73,7 +73,7 @@ class AdminCommands(commands.Cog):
         # Send a message to the log channel
         if self.bot.channel_log:
             await self.bot.channel_log.send(f"{interaction.user.mention} remove the achievement {success['name']} to {user.mention}")
-            print_log(f"{interaction.user.mention} remove the achievement {success['name']} to {user.mention}")
+            print_log(f"{interaction.user.mention} ({interaction.user.display_name}) remove the achievement {success['name']} to {user.mention} ({user.display_name})")
 
         # End the command
         await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)

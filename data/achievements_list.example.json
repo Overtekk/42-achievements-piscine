@@ -1,14 +1,26 @@
 [
 	{
-		"name": "name of the achievement",
-		"description_en": "description of the achievement",
-		"description_fr": "description du succès",
-		"points": 50
-	},
-	{
 		"name": "Welcome!",
 		"description_en": "Say 'Bonjour!!' to everyone",
 		"description_fr": "Dit 'Bonjour!!' à tout le monde",
 		"points": 2
+	},
+	{
+		"name": "Spammer",
+		"description_en": "Send 142 messages in the discord server",
+		"description_fr": "Envoie 142 messages sur le salon discord",
+		"points": 2
+	},
+	{
+		"name": "Spamton",
+		"description_en": "Send 242 messages in the discord server",
+		"description_fr": "Envoie 142 messages sur le salon discord",
+		"points": 4
+	},
+	{
+		"name": "Secret #1",
+		"description_en": "Find the first Korok hidding. Hint: ||Bio||",
+		"description_fr": "Trouve le premier Korogu caché. Indice: ||Bio||",
+		"points": 5
 	}
 ]

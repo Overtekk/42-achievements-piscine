@@ -15,20 +15,25 @@ base_path = Path(COGS_FOLDER_PATH).parent
 def main():
     try:
         # Load the discord token
+        print_log("Finding the '.env'...")
         if not load_dotenv('.env'):
             raise ValueError("\nCreate the '.env' and put the discord token in it.")
         BOT_TOKEN = os.getenv('DISCORD_TOKEN')
         if BOT_TOKEN is None:
             raise ValueError("\n Missing discord token in the .env file.")
+        print_log("Bot Token found!")
 
         # Create the bot
+        print_log("Loading Discord components...")
         bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
         bot.channel_log = None
         bot.main_channel = None
         # Create/Load the database
         bot.db = DatabaseManager()
         # Load the config and achievements list
+        print_log("Loading the configuration...")
         bot.config = load_config()
+        print_log("Loading the achievements list...")
         bot.achievements_list = load_achievements()
 
         @bot.event
@@ -53,7 +58,6 @@ def main():
             for file in _clean_file():
                 await bot.load_extension(file)
 
-
         bot.run(BOT_TOKEN)
 
         # END
@@ -66,7 +70,8 @@ def main():
 
 def _clean_file() -> list[str]:
     files_list: list[str] = []
-    skipped_files = ['view.py']
+    skipped_files = ['view.py', 'message.py']
+    print_log(f"Loading cogs...\nSkipping: {skipped_files}")
 
     for file_path in Path(COGS_FOLDER_PATH).rglob("*.py"):
         if file_path.name in skipped_files:
