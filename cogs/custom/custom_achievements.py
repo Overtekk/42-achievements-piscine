@@ -1,12 +1,14 @@
 # THIS MODULE IS INTENDED TO WORKS WITH CUSTOM ACHIEVEMENTS (like saying "BONJOUR!").
 # YOU CAN DELETE IT OR USE IT TO ADD YOUR OWNS CUSTOM ACHIEVEMENTS.
 
+import re
 import discord
 from discord import app_commands
 from discord.ext import commands
 from utils import print_error
 from cogs.custom.message import SecretText
 
+ROLE_NAME = "secret"
 
 class CustomAchievements(commands.Cog):
     def __init__(self, bot):
@@ -33,8 +35,8 @@ class CustomAchievements(commands.Cog):
         if message.content == SecretText.BONJOUR_MESSAGE:
             await self._unlock_achievement(message.author.id, message.author, 'Welcome!')
 
-        # CHECK THE SECRET1_1
-        if message.content == SecretText.SECRET1_1:
+        # DELETE SECRET MESSAGE
+        if re.search(r"FYAEITOTOHISPPIT", message.content, re.IGNORECASE):
             await self._delete_message(message)
 
     @app_commands.command(name='secret', description='Type the secret here')
@@ -44,6 +46,22 @@ class CustomAchievements(commands.Cog):
             if not await self._secret_1(interaction):
                 await interaction.response.send_message("can't send you a DM... 😥. Please allow me to send you a DM.", ephemeral=True, delete_after=60)
                 return
+
+        if code == SecretText.SECRET2_1:
+            await interaction.response.send_message("Find a word with it! Use this command again with `secret_message=` followed by the code. Try using it right now. Maybe you will be helped?", ephemeral=True)
+            return
+
+        if code == SecretText.SECRET_3_1:
+            await self._secret_4_role(interaction)
+            await interaction.response.send_message(":)", ephemeral=True)
+            return
+        elif code.startswith(SecretText.SECRET_3_2):
+            message = await self._secret_3_hint(code)
+            await interaction.response.send_message(message, ephemeral=True)
+            return
+
+        if code == SecretText.SECRET_4:
+            await self._unlock_achievement(interaction.user.id, interaction.user, 'Secret #1')
 
         await interaction.response.send_message("〰️", ephemeral=True, silent=True, delete_after=0.1)
 
@@ -91,6 +109,56 @@ class CustomAchievements(commands.Cog):
             print_error(f"{interaction.user.display_name} can't received DM. Sending ephemeral message.")
             return False
         return True
+
+    async def _secret_3_hint(self, raw_code: str) -> str:
+        code = raw_code.removeprefix('secret_message=')
+
+        CODE = 'PHOTOSTAT'
+
+        if not code:
+            return "Please. Put a code."
+        if len(code) > 16:
+            return "Code too long."
+        if len(code) <= 4:
+            return "Need minimum 4 letters."
+
+        good: int = 0
+        for guess_letter, secret_letter in zip(code.upper(), CODE):
+            if guess_letter == secret_letter:
+                good += 1
+
+        if good in (0, 1):
+            return f"{good} letter are in the right place."
+        return f"{good} letters are in the right place."
+
+    async def _secret_4_role(self, interaction: discord.Interaction) -> None:
+        guild = interaction.guild
+        member = interaction.user
+
+        role = discord.utils.get(guild.roles, name=ROLE_NAME)
+
+        if not role:
+            try:
+                role = await guild.create_role(
+                    name=ROLE_NAME,
+                    reason="Automatic creation - Secret success #1",
+                    mentionable=False,
+                    color=discord.Colour.dark_gray()
+                )
+            except discord.Forbidden:
+                print_error("Bot doesn't have the permission 'Manage Roles'")
+                return
+            except discord.HTTPException:
+                print_error("HTTP error when attempting to create a role.")
+
+        if role not in member.roles:
+            try:
+                await member.add_roles(role, reason='Found Success #1')
+            except discord.Forbidden:
+                print_error("Bot doesn't have permission to manage members roles.")
+            except discord.HTTPException:
+                print_error("HTTP error when attempting to give role to a member.")
+
 
 async def setup(bot):
     await bot.add_cog(CustomAchievements(bot))
