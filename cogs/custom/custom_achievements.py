@@ -2,6 +2,7 @@
 # YOU CAN DELETE IT OR USE IT TO ADD YOUR OWNS CUSTOM ACHIEVEMENTS.
 
 import discord
+from discord import app_commands
 from discord.ext import commands
 from utils import print_error
 from cogs.custom.message import SecretText
@@ -20,12 +21,12 @@ class CustomAchievements(commands.Cog):
             return
 
         # Increment MESSAGES COUNT
-        await self.bot.db.increment_user_message_count(message.author.id)
+        message_count = await self.bot.db.increment_user_message_count(message.author.id)
 
         # CHECK NB MESSAGES SEND
-        if await self.bot.db.check_user_message_count(message.author.id) == 142:
+        if message_count == 142:
             await self._unlock_achievement(message.author.id, message.author, 'Spammer')
-        elif await self.bot.db.check_user_message_count(message.author.id) == 242:
+        elif message_count == 242:
             await self._unlock_achievement(message.author.id, message.author, 'Spamton')
 
         # CHECK THE 'BONJOUR!!'
@@ -36,21 +37,15 @@ class CustomAchievements(commands.Cog):
         if message.content == SecretText.SECRET1_1:
             await self._delete_message(message)
 
-            try:
-                await message.author.send(
-                    SecretText.FIRST_MESSAGE1
-                )
-                await message.author.send(
-                    SecretText.FIRST_MESSAGE2
-                )
-                await message.author.send(
-                    SecretText.FIRST_MESSAGE3
-                )
-            except discord.Forbidden:
-                print_error(f"{message.author.display_name} can't received DM. Sending ephemeral message.")
-                await message.channel.send(
-                    f"{message.author.mention} can't send you a DM... 😥", delete_after=10, silent=True
-                )
+    @app_commands.command(name='secret', description='Type the secret here')
+    @commands.cooldown(1, 20, commands.BucketType.user)
+    async def secret_command(self, interaction: discord.Interaction, code: str) -> None:
+        if code == SecretText.SECRET1_1:
+            if not await self._secret_1(interaction):
+                await interaction.response.send_message("can't send you a DM... 😥. Please allow me to send you a DM.", ephemeral=True, delete_after=60)
+                return
+
+        await interaction.response.send_message("〰️", ephemeral=True, silent=True, delete_after=0.1)
 
     # :-------------------:
     #    Private methods
@@ -80,6 +75,22 @@ class CustomAchievements(commands.Cog):
             print_error("Missing permission to delete message.")
         except discord.NotFound:
             pass
+
+    async def _secret_1(self, interaction: discord.Interaction) -> bool:
+        try:
+            await interaction.user.send(
+                SecretText.FIRST_MESSAGE1
+            )
+            await interaction.user.send(
+                SecretText.FIRST_MESSAGE2
+            )
+            await interaction.user.send(
+                SecretText.FIRST_MESSAGE3
+            )
+        except discord.Forbidden:
+            print_error(f"{interaction.user.display_name} can't received DM. Sending ephemeral message.")
+            return False
+        return True
 
 async def setup(bot):
     await bot.add_cog(CustomAchievements(bot))

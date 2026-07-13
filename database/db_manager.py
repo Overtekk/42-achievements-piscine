@@ -126,15 +126,19 @@ class DatabaseManager():
 
                 return [row[0] for row in rows]
 
-    async def increment_user_message_count(self, user_id: str) -> None:
+    async def increment_user_message_count(self, user_id: str) -> int:
         async with aiosqlite.connect(self.db_path) as db:
-            await db.execute("""
+            async with db.execute("""
                 INSERT INTO user_discord_messages (user_id, nb_messages)
                 VALUES (?, 1)
                 ON CONFLICT(user_id) DO UPDATE SET nb_messages = nb_messages + 1
-            """, (user_id,))
+                RETURNING nb_messages
+            """, (user_id,)) as cursor:
 
-            await db.commit()
+                nb_msg = await cursor.fetchone()
+                await db.commit()
+
+                return nb_msg[0] if nb_msg else 0
 
     async def check_user_message_count(self, user_id: str) -> int:
         async with aiosqlite.connect(self.db_path) as db:
