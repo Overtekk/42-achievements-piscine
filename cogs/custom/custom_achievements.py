@@ -137,20 +137,6 @@ class CustomAchievements(commands.Cog):
 
         role = discord.utils.get(guild.roles, name=ROLE_NAME)
 
-        if not role:
-            try:
-                role = await guild.create_role(
-                    name=ROLE_NAME,
-                    reason="Automatic creation - Secret success #1",
-                    mentionable=False,
-                    color=discord.Colour.dark_gray()
-                )
-            except discord.Forbidden:
-                print_error("Bot doesn't have the permission 'Manage Roles'")
-                return
-            except discord.HTTPException:
-                print_error("HTTP error when attempting to create a role.")
-
         if role not in member.roles:
             try:
                 await member.add_roles(role, reason='Found Success #1')
