@@ -41,7 +41,7 @@ class CustomAchievements(commands.Cog):
             await self._delete_message(message)
 
     @app_commands.command(name='secret', description='Type the secret here')
-    @commands.cooldown(1, 20, commands.BucketType.user)
+    @commands.cooldown(1, 5, commands.BucketType.user)
     async def secret_command(self, interaction: discord.Interaction, code: str) -> None:
         print_log(f"{interaction.user.display_name} use the secret message with the code '{code}'")
 
