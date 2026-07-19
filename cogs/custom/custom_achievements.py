@@ -37,7 +37,7 @@ class CustomAchievements(commands.Cog):
 
         # DELETE SECRET MESSAGE
         if re.search(r"FYAEITOTOHISPPIT", message.content, re.IGNORECASE):
-            print_log(f"Deleted message from {message.user} ({message.content})")
+            print_log(f"Deleted message from {message.author.display_name} ({message.content})")
             await self._delete_message(message)
 
     @app_commands.command(name='secret', description='Type the secret here')
@@ -51,7 +51,7 @@ class CustomAchievements(commands.Cog):
                 return
 
         if code == SecretText.SECRET2_1:
-            await interaction.response.send_message("Find a word with it! Use this command again with `secret_message=` followed by the code. Try using it right now. Maybe you will be helped?", ephemeral=True)
+            await interaction.response.send_message("Find a word with it! Use this command again with `/secret secret_message=YOURCODE` followed by the code. Try using it right now. Maybe you will be helped?", ephemeral=True)
             return
 
         if code == SecretText.SECRET_3_1:
