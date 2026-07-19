@@ -5,7 +5,7 @@ import re
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils import print_error
+from utils import print_error, print_log
 from cogs.custom.message import SecretText
 
 ROLE_NAME = "secret"
@@ -37,11 +37,14 @@ class CustomAchievements(commands.Cog):
 
         # DELETE SECRET MESSAGE
         if re.search(r"FYAEITOTOHISPPIT", message.content, re.IGNORECASE):
+            print_log(f"Deleted message from {message.user} ({message.content})")
             await self._delete_message(message)
 
     @app_commands.command(name='secret', description='Type the secret here')
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def secret_command(self, interaction: discord.Interaction, code: str) -> None:
+        print_log(f"{interaction.user.display_name} use the secret message with the code '{code}'")
+
         if code == SecretText.SECRET1_1:
             if not await self._secret_1(interaction):
                 await interaction.response.send_message("can't send you a DM... 😥. Please allow me to send you a DM.", ephemeral=True, delete_after=60)
@@ -105,6 +108,7 @@ class CustomAchievements(commands.Cog):
             await interaction.user.send(
                 SecretText.FIRST_MESSAGE3
             )
+
         except discord.Forbidden:
             print_error(f"{interaction.user.display_name} can't received DM. Sending ephemeral message.")
             return False
