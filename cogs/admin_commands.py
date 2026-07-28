@@ -205,6 +205,44 @@ class AdminCommands(commands.Cog):
             embed=view_list[0], view=view_object, ephemeral=True
         )
 
+    @app_commands.command(
+            name="show_informations_for_all",
+            description="Show the information panel for everyone [ADMIN]",
+        )
+    @commands.cooldown(1, 20, commands.BucketType.user)
+    @app_commands.default_permissions(manage_guild=True)
+    async def show_informations_for_all(self, interaction: discord.Interaction) -> None:
+        description_txt = "\u200e\n"
+
+        description_txt += (
+            "This bot is used to track and award achievements during your piscine! 🏆\n\n"
+            "### 🌟 How It Works\n"
+            "As you progress through the piscine, complete projects, or interact with the community, "
+            "you will unlock various achievements. Each unlocked achievement grants you points and "
+            "boosts you on the server leaderboard!\n\n"
+            "### 📋 Main Commands\n"
+            "• `/achievements` ⧿ View your personal achievement checklist (unlocked ✅ / locked ❌). "
+            "You can choose your language for the achievement description. "
+            "You can also specify an user to see his achievements list.\n"
+            "• `/leaderboard` ⧿ Check the top players of the piscine and see your current standing.\n"
+            "• `/information` ⧿ Display this helpful guide with the choosen language.\n\n"
+            "### ✉️ Contacting Tutors\n"
+            "Some achievements need a proof. To do that, use the **`/send_message`** command! "
+            "You can write your demand (please, specify the success name at least), and optionally attach a screenshot/picture if required."
+            "Your message will be securely forwarded directly to the tutor team and the success will be granted as soon as possible! "
+            "If there is a problem, a tutor will contact you! Don't worry, some achievements can be automatically unlocked.\n"
+            "Of course, it's not needed to participate and will not affect your piscine. It's just a fun thing to do while your working! 🫡\n"
+            "\nGood luck!"
+        )
+
+        embed_obj = discord.Embed(
+            title="📒 **Informations** 📒",
+            description=description_txt,
+            color=discord.Color.dark_green(),
+        )
+
+        await interaction.response.send_message(embed=embed_obj)
+
     # :-------------------:
     #    Private methods
     # :-------------------:
