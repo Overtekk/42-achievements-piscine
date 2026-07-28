@@ -76,7 +76,7 @@ class CustomAchievements(commands.Cog):
 
         if code == SecretText.SECRET_3_1:
             await self._secret_4_role(interaction)
-            await interaction.response.send_message(":)", ephemeral=True)
+            await interaction.response.send_message("Something has appeared...", ephemeral=True)
             return
         elif code.startswith(SecretText.SECRET_3_2):
             message = await self._secret_3_hint(code)
@@ -89,7 +89,7 @@ class CustomAchievements(commands.Cog):
             )
 
         await interaction.response.send_message(
-            "〰️", ephemeral=True, silent=True, delete_after=0.1
+            "Code doesn't works.", ephemeral=True, silent=True, delete_after=0.1
         )
 
     # :-------------------:
