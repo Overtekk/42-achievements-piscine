@@ -1,4 +1,5 @@
 import random
+
 import discord
 from discord.ext import commands, tasks
 
@@ -21,7 +22,7 @@ class AchievementSystem(commands.Cog):
                 "\u200e"
                 f"{self._send_random_unlock_message(user, success['name'], success['description_en'])}"
             ),
-            color=discord.Color.dark_blue()
+            color=discord.Color.dark_blue(),
         )
         embed_obj.set_thumbnail(url=user.display_avatar.url)
 
@@ -38,7 +39,7 @@ class AchievementSystem(commands.Cog):
 
         # Slice the list
         n = 10
-        sliced_players = [leaderboard[i:i + n] for i in range(0, len(leaderboard), n)]
+        sliced_players = [leaderboard[i : i + n] for i in range(0, len(leaderboard), n)]
 
         position = 1
         description_text = "No score yet."
@@ -47,13 +48,15 @@ class AchievementSystem(commands.Cog):
             description_text: str = "\u200e\n"
 
             for player_id, points in chunk:
-                description_text += f"**{position}**. <@{player_id}> - *score: {points}*\n"
+                description_text += (
+                    f"**{position}**. <@{player_id}> - *score: {points}*\n"
+                )
                 position += 1
 
         embed_obj = discord.Embed(
-            title='🏆 **Leaderboard - Top 10** 🏆',
+            title="🏆 **Leaderboard - Top 10** 🏆",
             description=description_text,
-            color=discord.Color.gold()
+            color=discord.Color.gold(),
         )
 
         if self.bot.main_channel:
@@ -63,7 +66,9 @@ class AchievementSystem(commands.Cog):
     #    Private methods
     # :-------------------:
 
-    def _send_random_unlock_message(self, user: discord.Member, achievement_name: str, achievement_description: str) -> str:
+    def _send_random_unlock_message(
+        self, user: discord.Member, achievement_name: str, achievement_description: str
+    ) -> str:
         n = random.randint(0, 10)
 
         message = f"{user.mention} have unlocked **{achievement_name}**! 🎉"
@@ -79,13 +84,17 @@ class AchievementSystem(commands.Cog):
             case 4:
                 message = f"**{achievement_name}** have been unlocked by {user.mention}. Congrats! 🌟"
             case 5:
-                message = f"{user.mention} has made the advancement [**{achievement_name}**]"
+                message = (
+                    f"{user.mention} has made the advancement [**{achievement_name}**]"
+                )
             case 6:
                 message = f"{user.mention} now possess: **{achievement_name}**. GG 👏"
             case 7:
                 message = f"{user.mention} have unlocked the achievement **{achievement_name}**"
             case 8:
-                message = f"GG {user.mention} for the achievement: **{achievement_name}**! 🎊"
+                message = (
+                    f"GG {user.mention} for the achievement: **{achievement_name}**! 🎊"
+                )
             case 9:
                 message = f"{user.mention} have unlocked **{achievement_name}** 👍"
             case 10:
@@ -95,6 +104,6 @@ class AchievementSystem(commands.Cog):
 
         return message
 
+
 async def setup(bot):
     await bot.add_cog(AchievementSystem(bot))
-

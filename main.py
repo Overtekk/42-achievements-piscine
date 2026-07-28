@@ -1,12 +1,13 @@
-import sys
 import os
-import discord
-
+import sys
 from pathlib import Path
-from dotenv import load_dotenv
+
+import discord
 from discord.ext import commands
-from utils import print_error, print_log, load_config, load_achievements
+from dotenv import load_dotenv
+
 from database.db_manager import DatabaseManager
+from utils import load_achievements, load_config, print_error, print_log
 
 COGS_FOLDER_PATH = "cogs/"
 base_path = Path(COGS_FOLDER_PATH).parent
@@ -16,16 +17,16 @@ def main():
     try:
         # Load the discord token
         print_log("Finding the '.env'...")
-        if not load_dotenv('.env'):
+        if not load_dotenv(".env"):
             raise ValueError("\nCreate the '.env' and put the discord token in it.")
-        BOT_TOKEN = os.getenv('DISCORD_TOKEN')
+        BOT_TOKEN = os.getenv("DISCORD_TOKEN")
         if BOT_TOKEN is None:
             raise ValueError("\n Missing discord token in the .env file.")
         print_log("Bot Token found!")
 
         # Create the bot
         print_log("Loading Discord components...")
-        bot = commands.Bot(command_prefix='!', intents=discord.Intents.all())
+        bot = commands.Bot(command_prefix="!", intents=discord.Intents.all())
         bot.channel_log = None
         bot.main_channel = None
         # Create/Load the database
@@ -41,13 +42,13 @@ def main():
             print_log(f"Bot started as {bot.user.name}")
 
             # Synchronize slash commands
-            guild_object = discord.Object(id=bot.config['server_id'])
+            guild_object = discord.Object(id=bot.config["server_id"])
             bot.tree.copy_global_to(guild=guild_object)
             await bot.tree.sync(guild=guild_object)
 
             # - Usefull -
-            bot.channel_log = await bot.fetch_channel(bot.config['channel_log_id'])
-            bot.main_channel = await bot.fetch_channel(bot.config['channel_id'])
+            bot.channel_log = await bot.fetch_channel(bot.config["channel_log_id"])
+            bot.main_channel = await bot.fetch_channel(bot.config["channel_id"])
 
         @bot.event
         async def setup_hook():
@@ -70,7 +71,7 @@ def main():
 
 def _clean_file() -> list[str]:
     files_list: list[str] = []
-    skipped_files = ['view.py', 'message.py']
+    skipped_files = ["view.py", "message.py"]
     print_log(f"Loading cogs...\nSkipping: {skipped_files}")
 
     for file_path in Path(COGS_FOLDER_PATH).rglob("*.py"):
@@ -78,7 +79,7 @@ def _clean_file() -> list[str]:
             continue
 
         relative_path = file_path.relative_to(base_path)
-        clean_path = relative_path.with_suffix('')
+        clean_path = relative_path.with_suffix("")
         final_filename = ".".join(clean_path.parts)
 
         files_list.append(final_filename)

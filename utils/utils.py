@@ -1,5 +1,5 @@
-import pathlib
 import os
+import pathlib
 
 from rich.console import Console
 from rich.errors import StyleSyntaxError
@@ -55,7 +55,7 @@ def check_file_extension(file: pathlib.Path | str, extension: str) -> bool:
     if not isinstance(file, pathlib.Path):
         file = pathlib.Path(file)
 
-    if not extension.startswith('.'):
+    if not extension.startswith("."):
         extension = f".{extension}"
     return file.suffix == extension
 

@@ -10,4 +10,5 @@ dependencies = [
     "dotenv>=0.9.9",
     "pydantic>=2.13.4",
     "rich>=15.0.0",
+    "ruff>=0.16.0",
 ]

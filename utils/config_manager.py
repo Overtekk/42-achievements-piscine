@@ -1,7 +1,9 @@
-from utils import is_file_exist, is_folder_exist, check_file_extension, print_log
 import json
-from pydantic import BaseModel, ConfigDict, Field, ValidationError, RootModel
 from pathlib import Path
+
+from pydantic import BaseModel, ConfigDict, Field, RootModel, ValidationError
+
+from utils import check_file_extension, is_file_exist, is_folder_exist, print_log
 
 CONFIG_PATH = "data/config.json"
 ACHIEVEMENT_PATH = "data/achievements_list.json"
@@ -13,23 +15,13 @@ ACHIEVEMENT_PATH = "data/achievements_list.json"
 
 
 class ConfigModel(BaseModel):
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
 
-    server_id: str = Field(
-        min_length=1, pattern=r"^\d+$"
-    )
-    channel_id: str = Field(
-        min_length=1, pattern=r"^\d+$"
-    )
-    channel_log_id: str = Field(
-        min_length=1, pattern=r"^\d+$"
-    )
-    pisciners_role_id: str = Field(
-        min_length=1, pattern=r"^\d+$"
-    )
-    admin_role_id: str = Field(
-        min_length=1, pattern=r"^\d+$"
-    )
+    server_id: str = Field(min_length=1, pattern=r"^\d+$")
+    channel_id: str = Field(min_length=1, pattern=r"^\d+$")
+    channel_log_id: str = Field(min_length=1, pattern=r"^\d+$")
+    pisciners_role_id: str = Field(min_length=1, pattern=r"^\d+$")
+    admin_role_id: str = Field(min_length=1, pattern=r"^\d+$")
 
 
 def load_config() -> dict[str, str]:
@@ -45,8 +37,10 @@ def load_config() -> dict[str, str]:
 
     # Checking config file
     if not is_file_exist(filepath):
-        raise ValueError("'config.json' does not exist. Copy 'config.example.json' and rename it to 'config.json'. Don't forget to modify the config!")
-    if not check_file_extension(filepath, 'json'):
+        raise ValueError(
+            "'config.json' does not exist. Copy 'config.example.json' and rename it to 'config.json'. Don't forget to modify the config!"
+        )
+    if not check_file_extension(filepath, "json"):
         raise ValueError(f"wrong extension for {filepath}")
 
     try:
@@ -59,7 +53,7 @@ def load_config() -> dict[str, str]:
 
 
 def update_config(key: str, value: str) -> dict[str, str]:
-    with open(CONFIG_PATH, 'r', encoding='utf-8') as f:
+    with open(CONFIG_PATH, "r", encoding="utf-8") as f:
         config = json.load(f)
 
         if key not in config:
@@ -73,7 +67,7 @@ def update_config(key: str, value: str) -> dict[str, str]:
             print_log(e)
             return
 
-    with open(CONFIG_PATH, 'w', encoding='utf-8') as f:
+    with open(CONFIG_PATH, "w", encoding="utf-8") as f:
         json.dump(config, f, indent=4)
 
     return load_config()
@@ -85,17 +79,11 @@ def update_config(key: str, value: str) -> dict[str, str]:
 
 
 class AchievementModel(BaseModel):
-    model_config = ConfigDict(extra='forbid')
+    model_config = ConfigDict(extra="forbid")
 
-    name: str = Field(
-        min_length=1
-    )
-    description_en: str = Field(
-        min_length=1
-    )
-    description_fr: str = Field(
-        min_length=1
-    )
+    name: str = Field(min_length=1)
+    description_en: str = Field(min_length=1)
+    description_fr: str = Field(min_length=1)
     points: int
 
 
@@ -116,13 +104,17 @@ def load_achievements() -> list[dict[str, str]]:
 
     # Checking achievement file
     if not is_file_exist(filepath):
-        raise ValueError("'achievements_list.json' does not exist. Copy 'achievements_list.example.json' and rename it to 'achievements_list.json'. Don't forget to modify the file!")
-    if not check_file_extension(filepath, 'json'):
+        raise ValueError(
+            "'achievements_list.json' does not exist. Copy 'achievements_list.example.json' and rename it to 'achievements_list.json'. Don't forget to modify the file!"
+        )
+    if not check_file_extension(filepath, "json"):
         raise ValueError(f"wrong extension for {filepath}")
 
     try:
         achievement_data = filepath.read_text(encoding="utf-8")
-        achievement_file_validation = AchievementListModel.model_validate_json(achievement_data)
+        achievement_file_validation = AchievementListModel.model_validate_json(
+            achievement_data
+        )
     except ValidationError as e:
         raise ValueError(f"Invalid config file: {e}") from e
 
@@ -131,7 +123,7 @@ def load_achievements() -> list[dict[str, str]]:
     # Add an ID to each achievement
     id: int = 0
     for achievement in achievements_list:
-        achievement['id'] = id
+        achievement["id"] = id
         id += 1
 
     return achievements_list

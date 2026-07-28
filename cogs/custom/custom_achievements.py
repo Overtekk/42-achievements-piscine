@@ -2,56 +2,76 @@
 # YOU CAN DELETE IT OR USE IT TO ADD YOUR OWNS CUSTOM ACHIEVEMENTS.
 
 import re
+
 import discord
 from discord import app_commands
 from discord.ext import commands
-from utils import print_error, print_log
+
 from cogs.custom.message import SecretText
+from utils import print_error, print_log
 
 ROLE_NAME = "secret"
+
 
 class CustomAchievements(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
         self.achievement_sys = self.bot.get_cog("AchievementSystem")
-        self.pisciners_role = int(self.bot.config['pisciners_role_id'])
+        self.pisciners_role = int(self.bot.config["pisciners_role_id"])
 
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         # - SECURITY -
-        if message.author.bot or not any(role.id == self.pisciners_role for role in message.author.roles):
+        if message.author.bot or not any(
+            role.id == self.pisciners_role for role in message.author.roles
+        ):
             return
 
         # Increment MESSAGES COUNT
-        message_count = await self.bot.db.increment_user_message_count(message.author.id)
+        message_count = await self.bot.db.increment_user_message_count(
+            message.author.id
+        )
 
         # CHECK NB MESSAGES SEND
         if message_count == 142:
-            await self._unlock_achievement(message.author.id, message.author, 'Spammer')
+            await self._unlock_achievement(message.author.id, message.author, "Spammer")
         elif message_count == 242:
-            await self._unlock_achievement(message.author.id, message.author, 'Spamton')
+            await self._unlock_achievement(message.author.id, message.author, "Spamton")
 
         # CHECK THE 'BONJOUR!!'
         if message.content == SecretText.BONJOUR_MESSAGE:
-            await self._unlock_achievement(message.author.id, message.author, 'Welcome!')
+            await self._unlock_achievement(
+                message.author.id, message.author, "Welcome!"
+            )
 
         # DELETE SECRET MESSAGE
         if re.search(r"FYAEITOTOHISPPIT", message.content, re.IGNORECASE):
-            print_log(f"Deleted message from {message.author.display_name} ({message.content})")
+            print_log(
+                f"Deleted message from {message.author.display_name} ({message.content})"
+            )
             await self._delete_message(message)
 
-    @app_commands.command(name='secret', description='Type the secret here')
+    @app_commands.command(name="secret", description="Type the secret here")
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def secret_command(self, interaction: discord.Interaction, code: str) -> None:
-        print_log(f"{interaction.user.display_name} use the secret message with the code '{code}'")
+        print_log(
+            f"{interaction.user.display_name} use the secret message with the code '{code}'"
+        )
 
         if code == SecretText.SECRET1_1:
             if not await self._secret_1(interaction):
-                await interaction.response.send_message("can't send you a DM... 😥. Please allow me to send you a DM.", ephemeral=True, delete_after=60)
+                await interaction.response.send_message(
+                    "can't send you a DM... 😥. Please allow me to send you a DM.",
+                    ephemeral=True,
+                    delete_after=60,
+                )
                 return
 
         if code == SecretText.SECRET2_1:
-            await interaction.response.send_message("Find a word with it! Use this command again with `/secret secret_message=YOURCODE` followed by the code. Try using it right now. Maybe you will be helped?", ephemeral=True)
+            await interaction.response.send_message(
+                "Find a word with it! Use this command again with `/secret secret_message=YOURCODE` followed by the code. Try using it right now. Maybe you will be helped?",
+                ephemeral=True,
+            )
             return
 
         if code == SecretText.SECRET_3_1:
@@ -64,9 +84,13 @@ class CustomAchievements(commands.Cog):
             return
 
         if code == SecretText.SECRET_4:
-            await self._unlock_achievement(interaction.user.id, interaction.user, 'Secret #1')
+            await self._unlock_achievement(
+                interaction.user.id, interaction.user, "Secret #1"
+            )
 
-        await interaction.response.send_message("〰️", ephemeral=True, silent=True, delete_after=0.1)
+        await interaction.response.send_message(
+            "〰️", ephemeral=True, silent=True, delete_after=0.1
+        )
 
     # :-------------------:
     #    Private methods
@@ -76,14 +100,14 @@ class CustomAchievements(commands.Cog):
         target_success = None
 
         for success in self.bot.achievements_list:
-            if success['name'] == success_name:
+            if success["name"] == success_name:
                 target_success = success
                 break
         if not target_success:
             return
 
         unlocked = await self.bot.db.unlock_achievement(
-            user_id, target_success['id'], target_success['points']
+            user_id, target_success["id"], target_success["points"]
         )
 
         if self.achievement_sys and unlocked:
@@ -99,25 +123,21 @@ class CustomAchievements(commands.Cog):
 
     async def _secret_1(self, interaction: discord.Interaction) -> bool:
         try:
-            await interaction.user.send(
-                SecretText.FIRST_MESSAGE1
-            )
-            await interaction.user.send(
-                SecretText.FIRST_MESSAGE2
-            )
-            await interaction.user.send(
-                SecretText.FIRST_MESSAGE3
-            )
+            await interaction.user.send(SecretText.FIRST_MESSAGE1)
+            await interaction.user.send(SecretText.FIRST_MESSAGE2)
+            await interaction.user.send(SecretText.FIRST_MESSAGE3)
 
         except discord.Forbidden:
-            print_error(f"{interaction.user.display_name} can't received DM. Sending ephemeral message.")
+            print_error(
+                f"{interaction.user.display_name} can't received DM. Sending ephemeral message."
+            )
             return False
         return True
 
     async def _secret_3_hint(self, raw_code: str) -> str:
-        code = raw_code.removeprefix('secret_message=')
+        code = raw_code.removeprefix("secret_message=")
 
-        CODE = 'PHOTOSTAT'
+        CODE = "PHOTOSTAT"
 
         if not code:
             return "Please. Put a code."
@@ -143,7 +163,7 @@ class CustomAchievements(commands.Cog):
 
         if role not in member.roles:
             try:
-                await member.add_roles(role, reason='Found Success #1')
+                await member.add_roles(role, reason="Found Success #1")
             except discord.Forbidden:
                 print_error("Bot doesn't have permission to manage members roles.")
             except discord.HTTPException:
@@ -152,4 +172,3 @@ class CustomAchievements(commands.Cog):
 
 async def setup(bot):
     await bot.add_cog(CustomAchievements(bot))
-

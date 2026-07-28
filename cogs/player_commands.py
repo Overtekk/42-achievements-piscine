@@ -1,30 +1,32 @@
+from enum import Enum
+
 import discord
 from discord import app_commands
 from discord.ext import commands
-from cogs.view import PageView, AchievementPageView
-from enum import Enum
+
+from cogs.view import AchievementPageView, PageView
 from utils import check_file_extension
 
-PICTURE_EXTENSION = ['.png', '.jpg', '.jpeg']
+PICTURE_EXTENSION = [".png", ".jpg", ".jpeg"]
 
 
 class Language(str, Enum):
-    FR = 'fr'
-    EN = 'en'
+    FR = "fr"
+    EN = "en"
 
 
 class PlayerCommands(commands.Cog):
     def __init__(self, bot):
         self.bot = bot
 
-    @app_commands.command(name='leaderboard', description='Show the leaderboard')
+    @app_commands.command(name="leaderboard", description="Show the leaderboard")
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def show_leaderboard(self, interaction: discord.Interaction) -> None:
         leaderboard = await self.bot.db.get_leaderboard()
 
         # Slice the list
         n = 20
-        sliced_players = [leaderboard[i:i + n] for i in range(0, len(leaderboard), n)]
+        sliced_players = [leaderboard[i : i + n] for i in range(0, len(leaderboard), n)]
 
         view_list: list[discord.Embed] = []
         position = 1
@@ -33,13 +35,15 @@ class PlayerCommands(commands.Cog):
             description_text: str = "\u200e\n"
 
             for player_id, points in chunk:
-                description_text += f"**{position}**. <@{player_id}> - *score: {points}*\n"
+                description_text += (
+                    f"**{position}**. <@{player_id}> - *score: {points}*\n"
+                )
                 position += 1
 
             embed_obj = discord.Embed(
-                title='🏆 **Leaderboard** 🏆',
+                title="🏆 **Leaderboard** 🏆",
                 description=description_text,
-                color=discord.Color.gold()
+                color=discord.Color.gold(),
             )
 
             view_list.append(embed_obj)
@@ -47,9 +51,9 @@ class PlayerCommands(commands.Cog):
         # If empty
         if not view_list:
             embed_obj = discord.Embed(
-                title='🏆 **Leaderboard** 🏆',
+                title="🏆 **Leaderboard** 🏆",
                 description="\nEmpty :(\n",
-                color=discord.Color.gold()
+                color=discord.Color.gold(),
             )
 
             await interaction.response.send_message(embed=embed_obj, ephemeral=True)
@@ -57,12 +61,17 @@ class PlayerCommands(commands.Cog):
 
         view_object = PageView(view_list)
 
-        await interaction.response.send_message(embed=view_list[0], view=view_object, ephemeral=True)
+        await interaction.response.send_message(
+            embed=view_list[0], view=view_object, ephemeral=True
+        )
 
-    @app_commands.command(name='achievements', description='Show the achievements list')
+    @app_commands.command(name="achievements", description="Show the achievements list")
     @commands.cooldown(1, 20, commands.BucketType.user)
     async def achievements_list(
-        self, interaction: discord.Interaction, language: Language = Language.EN, user: discord.Member = None
+        self,
+        interaction: discord.Interaction,
+        language: Language = Language.EN,
+        user: discord.Member = None,
     ) -> None:
 
         target_user = user or interaction.user
@@ -71,19 +80,30 @@ class PlayerCommands(commands.Cog):
             bot=self.bot,
             achievements=self.bot.achievements_list,
             target_user=target_user,
-            language=language.value
+            language=language.value,
         )
 
         await view_object._generate_view()
 
-        await interaction.response.send_message(embed=view_object.pages[0], view=view_object, ephemeral=True)
+        await interaction.response.send_message(
+            embed=view_object.pages[0], view=view_object, ephemeral=True
+        )
 
-    @app_commands.command(name='send_message', description="Send a message to the tutor")
+    @app_commands.command(
+        name="send_message", description="Send a message to the tutor"
+    )
     @commands.cooldown(1, 60, commands.BucketType.user)
-    async def send_message_to_tutor(self, interaction: discord.Interaction, message: str, picture: discord.Attachment = None) -> None:
+    async def send_message_to_tutor(
+        self,
+        interaction: discord.Interaction,
+        message: str,
+        picture: discord.Attachment = None,
+    ) -> None:
         # PROTECTION
         if len(message) == 0:
-            await interaction.response.send_message("ERROR ❌. Can't send empty message.", ephemeral=True, delete_after=10)
+            await interaction.response.send_message(
+                "ERROR ❌. Can't send empty message.", ephemeral=True, delete_after=10
+            )
             return
 
         # CHECK PICTURE EXTENSION (prevent sending other things than a picture)
@@ -95,13 +115,16 @@ class PlayerCommands(commands.Cog):
                     break
 
             if not flag:
-                await interaction.response.send_message(f"ERROR ❌. Not  picture. Accepted extension: {PICTURE_EXTENSION}", ephemeral=True, delete_after=10)
+                await interaction.response.send_message(
+                    f"ERROR ❌. Not  picture. Accepted extension: {PICTURE_EXTENSION}",
+                    ephemeral=True,
+                    delete_after=10,
+                )
                 return
 
         embed_obj = discord.Embed(
             title=f"New message from {interaction.user.display_name}",
-            description=("\u200e\n"
-                        f"{message}")
+            description=(f"\u200e\n{message}"),
         )
         embed_obj.set_author(name=f"{interaction.user.display_name}")
         if picture:
@@ -112,11 +135,17 @@ class PlayerCommands(commands.Cog):
             await self.bot.channel_log.send(embed=embed_obj)
 
         # End the command
-        await interaction.response.send_message("Done ✅", ephemeral=True, delete_after=10)
+        await interaction.response.send_message(
+            "Done ✅", ephemeral=True, delete_after=10
+        )
 
-    @app_commands.command(name='information', description="Show global information about the bot")
+    @app_commands.command(
+        name="information", description="Show global information about the bot"
+    )
     @commands.cooldown(1, 360, commands.BucketType.user)
-    async def information_command(self, interaction: discord.Interaction, language: Language = Language.EN) -> None:
+    async def information_command(
+        self, interaction: discord.Interaction, language: Language = Language.EN
+    ) -> None:
         description_txt = "\u200e\n"
 
         if language == Language.EN:
@@ -161,15 +190,16 @@ class PlayerCommands(commands.Cog):
                 "En cas de problème, un tuteur vous contactera ! Ne vous inquiétez pas, certains succès peuvent se débloquer automatiquement.\n"
                 "Bien sûr, il n'est pas obligatoire de participer et cela n'affectera en rien votre piscine. C'est juste un petit jeu amusant pendant que vous travaillez ! 🫡\n"
                 "\nBonne chance !"
-                )
+            )
 
         embed_obj = discord.Embed(
             title="📒 **Informations** 📒",
             description=description_txt,
-            color=discord.Color.dark_green()
+            color=discord.Color.dark_green(),
         )
 
         await interaction.response.send_message(embed=embed_obj, ephemeral=True)
+
 
 async def setup(bot):
     await bot.add_cog(PlayerCommands(bot))
