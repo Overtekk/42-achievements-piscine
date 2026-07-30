@@ -93,6 +93,14 @@ class CustomAchievements(commands.Cog):
             await interaction.response.send_message(message, ephemeral=True)
             return
 
+        if not code.startswith(SecretText.SECRET_3_2):
+            if re.search(r"(?:PHOTOSTAT|PHOTO|FYAEITOTOHISPPIT)", code, re.IGNORECASE):
+                await interaction.response.send_message(
+                "⚠️ Don't forget to format your code using `secret_message=YOURCODE` (e.g. `/secret code:secret_message=...`)!",
+                ephemeral=True,
+            )
+            return
+
         if code == SecretText.SECRET_4:
             await self._unlock_achievement(
                 interaction.user.id, interaction.user, "Secret #1"
