@@ -22,8 +22,11 @@ class CustomAchievements(commands.Cog):
     @commands.Cog.listener()
     async def on_message(self, message: discord.Message) -> None:
         # - SECURITY -
-        if message.author.bot or not any(
-            role.id == self.pisciners_role for role in message.author.roles
+        if (
+            message.author.bot
+            or not message.guild
+            or not isinstance(message.author, discord.Member)
+            or not any(role.id == self.pisciners_role for role in message.author.roles)
         ):
             return
 
@@ -45,7 +48,7 @@ class CustomAchievements(commands.Cog):
             )
 
         # DELETE SECRET MESSAGE
-        if re.search(r"FYAEITOTOHISPPIT", message.content, re.IGNORECASE) or re.search(r"?best", message.content, re.IGNORECASE):
+        if re.search(r"FYAEITOTOHISPPIT", message.content, re.IGNORECASE) or re.search(r"\?best", message.content, re.IGNORECASE):
             print_log(
                 f"Deleted message from {message.author.display_name} ({message.content})"
             )
