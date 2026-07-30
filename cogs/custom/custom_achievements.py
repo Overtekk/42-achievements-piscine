@@ -68,7 +68,11 @@ class CustomAchievements(commands.Cog):
                     ephemeral=True,
                     delete_after=60,
                 )
-                return
+            else:
+                await interaction.response.send_message(
+                    "Check your DMs! 📩", ephemeral=True
+                )
+            return
 
         if code == SecretText.SECRET2_1:
             await interaction.response.send_message(
@@ -83,6 +87,7 @@ class CustomAchievements(commands.Cog):
                 "Something has appeared...", ephemeral=True
             )
             return
+
         elif code.startswith(SecretText.SECRET_3_2):
             message = await self._secret_3_hint(code)
             await interaction.response.send_message(message, ephemeral=True)
@@ -92,9 +97,13 @@ class CustomAchievements(commands.Cog):
             await self._unlock_achievement(
                 interaction.user.id, interaction.user, "Secret #1"
             )
+            await interaction.response.send_message(
+                "Secret unlocked!", ephemeral=True
+            )
+            return
 
         await interaction.response.send_message(
-            "Code doesn't works.", ephemeral=True, silent=True, delete_after=0.1
+            "Not a valid code.", ephemeral=True, silent=True, delete_after=30
         )
 
     # :-------------------:
