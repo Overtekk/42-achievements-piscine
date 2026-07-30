@@ -30,7 +30,7 @@ class AchievementSystem(commands.Cog):
         if self.bot.main_channel:
             await self.bot.main_channel.send(embed=embed_obj)
 
-    @tasks.loop(hours=4)
+    @tasks.loop(hours=8)
     async def send_leaderboard(self) -> None:
         if not self.bot.is_ready():
             return
