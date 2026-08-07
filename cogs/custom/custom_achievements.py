@@ -53,6 +53,7 @@ class CustomAchievements(commands.Cog):
                 f"Deleted message from {message.author.display_name} ({message.content})"
             )
             await self._delete_message(message)
+            return
 
     @app_commands.command(name="secret", description="Type the secret here")
     @commands.cooldown(1, 5, commands.BucketType.user)
@@ -88,19 +89,6 @@ class CustomAchievements(commands.Cog):
             )
             return
 
-        elif code.startswith(SecretText.SECRET_3_2):
-            message = await self._secret_3_hint(code)
-            await interaction.response.send_message(message, ephemeral=True)
-            return
-
-        if not code.startswith(SecretText.SECRET_3_2):
-            if re.search(r"(?:PHOTOSTAT|PHOTO|FYAEITOTOHISPPIT)", code, re.IGNORECASE):
-                await interaction.response.send_message(
-                "⚠️ Don't forget to format your code using `secret_message=YOURCODE` (e.g. `/secret code:secret_message=...`)!",
-                ephemeral=True,
-            )
-            return
-
         if code == SecretText.SECRET_4:
             await self._unlock_achievement(
                 interaction.user.id, interaction.user, "Secret #1"
@@ -110,6 +98,20 @@ class CustomAchievements(commands.Cog):
             )
             return
 
+        elif code.startswith(SecretText.SECRET_3_2):
+            message = await self._secret_3_hint(code)
+            await interaction.response.send_message(message, ephemeral=True)
+            return
+
+        if not code.startswith(SecretText.SECRET_3_2):  # noqa: SIM102
+            if re.search(r"(?:PHOTOSTAT|PHOTO|FYAEITOTOHISPPIT)", code, re.IGNORECASE):
+                await interaction.response.send_message(
+                "⚠️ Don't forget to format your code using `secret_message=YOURCODE` (e.g. `/secret code:secret_message=...`)!",
+                ephemeral=True,
+            )
+                return
+
+        # FALLBACK
         await interaction.response.send_message(
             "Not a valid code.", ephemeral=True, silent=True, delete_after=30
         )
