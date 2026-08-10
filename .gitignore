@@ -5,7 +5,8 @@ __pycache__/
 
 # C extensions
 *.so
-
+cache*
+piscine.json
 # Distribution / packaging
 .Python
 build/
