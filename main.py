@@ -34,6 +34,10 @@ def main():
         # Load the config and achievements list
         print_log("Loading the configuration...")
         bot.config = load_config()
+        bot.config["api_42_uid"] = os.getenv("API_42_UID")
+        bot.config["api_42_secret"] = os.getenv("API_42_SECRET")
+        bot.config["oauth_redirect_uri"] = os.getenv("OAUTH_REDIRECT_URI", "")
+        bot.config["oauth_server_url"] = os.getenv("OAUTH_SERVER_URL", "")
         print_log("Loading the achievements list...")
         bot.achievements_list = load_achievements()
 
