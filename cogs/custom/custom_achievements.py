@@ -36,9 +36,9 @@ class CustomAchievements(commands.Cog):
         )
 
         # CHECK NB MESSAGES SEND
-        if message_count == 142:
+        if message_count == 42:
             await self._unlock_achievement(message.author.id, message.author, "Spammer")
-        elif message_count == 242:
+        elif message_count == 142:
             await self._unlock_achievement(message.author.id, message.author, "Spamton")
 
         # CHECK THE 'BONJOUR!!'
