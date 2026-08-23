@@ -37,21 +37,14 @@ class AchievementSystem(commands.Cog):
 
         leaderboard = await self.bot.db.get_leaderboard()
 
-        # Slice the list
-        n = 10
-        sliced_players = [leaderboard[i : i + n] for i in range(0, len(leaderboard), n)]
-
-        position = 1
-        description_text = "No score yet."
-
-        for chunk in sliced_players:
-            description_text: str = "\u200e\n"
-
-            for player_id, points in chunk:
+        if not leaderboard:
+            description_text = "No score yet."
+        else:
+            description_text = "\u200e\n"
+            for position, (player_id, points) in enumerate(leaderboard[:10], start=1):
                 description_text += (
                     f"**{position}**. <@{player_id}> - *score: {points}*\n"
                 )
-                position += 1
 
         embed_obj = discord.Embed(
             title="🏆 **Leaderboard - Top 10** 🏆",
